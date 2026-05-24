@@ -510,7 +510,7 @@ export default function Asha() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer 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`,
+          Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
         },
         body: JSON.stringify({
           model: "llama-3.3-70b-versatile",
