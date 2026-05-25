@@ -132,7 +132,6 @@ const STYLES = `
     font-family: 'Montserrat', sans-serif;
   }
 
-  /* HEADER */
   .asha-header {
     padding: 20px 40px;
     border-bottom: 1px solid var(--border);
@@ -184,7 +183,6 @@ const STYLES = `
     color: var(--fg);
   }
 
-  /* MESSAGES */
   .asha-messages {
     flex: 1;
     overflow-y: auto;
@@ -234,7 +232,6 @@ const STYLES = `
     font-weight: 400;
   }
 
-  /* ASHA MESSAGE TEXT */
   .msg-text {
     font-size: 0.9rem;
     line-height: 1.8;
@@ -327,7 +324,6 @@ const STYLES = `
 
   .md-table tr:last-child .md-td { border-bottom: none; }
 
-  /* CHARTS */
   .chart-wrap {
     margin: 16px 0;
     padding: 20px;
@@ -344,7 +340,6 @@ const STYLES = `
     color: var(--fg);
   }
 
-  /* TYPING */
   .typing {
     display: flex;
     gap: 5px;
@@ -366,7 +361,6 @@ const STYLES = `
     40%            { opacity: 1;   transform: scale(1); }
   }
 
-  /* INPUT */
   .asha-input-area {
     border-top: 1px solid var(--border);
     padding: 20px 40px;
@@ -423,7 +417,6 @@ const STYLES = `
     cursor: not-allowed;
   }
 
-  /* EMPTY STATE */
   .empty-state {
     margin: auto;
     text-align: center;
@@ -448,7 +441,6 @@ const STYLES = `
     font-weight: 500;
   }
 
-  /* MOBILE */
   @media (max-width: 600px) {
     .asha-header    { padding: 16px 20px; }
     .asha-messages  { padding: 28px 20px; }
@@ -506,39 +498,41 @@ export default function Asha() {
     if (textareaRef.current) textareaRef.current.style.height = "auto";
 
     try {
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          messages: [
-            {
-              role: "system",
-              content: `You are Asha, an AI business advisor for founders. You help with business research and strategy particularly in the African market. You have data on all business sectors and know what works and what fails. You get to know more about the business before you conduct strategy and research. Be concise, sharp, and insightful.
+      let reply;
 
-When responding:
-- Use **bold** for key terms and important points
-- Use bullet lists or numbered lists where appropriate
-- Use tables for comparisons
-- Use headings to structure long responses
-- When the user asks for data that can be visualized, output a chart block like this:
-\`\`\`chart
-{"type": "bar", "title": "Chart Title", "data": [{"name": "Label", "value": 100}]}
-\`\`\`
-- For pie charts use: {"type": "pie", ...} with the same data structure`,
-            },
-            ...updated,
-          ],
-          temperature: 0.7,
-          max_tokens: 1024,
-        }),
-      });
+      if (import.meta.env.DEV) {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              {
+                role: "system",
+                content: `You are Asha, an AI business advisor built by Mexuri to help founders...`,
+              },
+              ...updated,
+            ],
+            temperature: 0.7,
+            max_tokens: 1024,
+          }),
+        });
+        const data = await res.json();
+        reply = data.choices[0].message.content;
 
-      const data = await res.json();
-      const reply = data.choices[0].message.content;
+      } else {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: updated }),
+        });
+        const data = await res.json();
+        reply = data.reply;
+      }
+
       setMessages([...updated, { role: "assistant", content: reply }]);
 
     } catch (error) {
@@ -548,7 +542,6 @@ When responding:
       setLoading(false);
     }
   };
-
   const onKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
