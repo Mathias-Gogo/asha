@@ -9,66 +9,106 @@ function generateSlug() {
     return Math.random().toString(36).slice(2, 8);
 }
 
-const REASONING_SYSTEM = `You are Asha's reasoning engine built by Mexuri. You analyze user requests and decide what to do.
+// ============================================================
+// PROCESS 1 — REASONING
+// Model: llama-3.3-70b-versatile
+// Job: Understand the user's intent and classify it.
+//      Expand vague requests into precise, actionable specs.
+//      Output structured JSON only — no prose, no markdown.
+// ============================================================
+const REASONING_SYSTEM = `You are Asha's reasoning engine, built by Mexuri.
 
-Always respond in this exact JSON format, no extra text, no markdown, no code fences:
+Your ONLY job is to read the user's latest message, understand their intent, and output a JSON decision object.
+
+You do NOT answer questions. You do NOT build apps. You do NOT do research.
+You ONLY classify and structure the request for the next process.
+
+CLASSIFICATION:
+- "build" → user wants any software created: app, tool, calculator, tracker, dashboard, form, game, website, widget
+- "research" → user wants data, analysis, market research, industry landscape, competitor info, statistics, trends
+- "chat" → greetings, follow-ups, general strategy advice, clarification questions
+
+OUTPUT FORMAT — valid JSON only, no markdown, no backticks, no explanation:
 {
-  "reply": "natural conversational response to show the user",
-  "action": "chat" or "build" or "research",
-  "buildPrompt": "highly detailed app specification if action is build, otherwise null",
-  "researchQuery": "specific search query if action is research, otherwise null"
+  "action": "build" | "research" | "chat",
+  "reply": "one short sentence acknowledging what you are about to do",
+  "buildPrompt": "if action is build: a detailed technical spec covering layout, features, interactions, data flow. If not build: null",
+  "researchQuery": "if action is research: a precise, targeted search query. If not research: null"
 }
 
-CLASSIFICATION RULES — be decisive:
-- "build" = ANY request to create, build, make, generate, develop software, app, tool, calculator, tracker, dashboard, form, game, website, widget, list app
-- "research" = ANY request for market research, industry analysis, business landscape, competitor analysis, data, statistics, trends
-- "chat" = ONLY for greetings, general advice, strategy questions, follow-up conversation
-- When responding with research or business data, use markdown tables and suggest charts where relevant
-- For chart data, output a chart block like this inside the reply field:
-  \`\`\`chart
-  {"type": "bar", "title": "Chart Title", "data": [{"name": "Label", "value": 100}]}
-  \`\`\`
+RULES:
+- Base classification ONLY on the user's last message
+- For build: expand the user's idea into a rich spec the execution engine can use directly
+- For research: distill the user's question into a precise search query
+- reply must be natural and conversational — one sentence max
+- Return ONLY the JSON object. Nothing else.`;
 
-For "build", expand buildPrompt into a detailed spec: layout, features, data it handles, interactions.
-For "research", make researchQuery specific and targeted.
-Only return valid JSON. No markdown. No backticks.
 
-IMPORTANT: Always classify based on the LAST user message only, ignore previous messages.
+// ============================================================
+// PROCESS 2A — RESEARCH
+// Model: groq/compound (has live web search)
+// Job: Execute the research query from the reasoning engine.
+//      Return structured, formatted intelligence.
+// ============================================================
+const RESEARCH_SYSTEM = `You are Asha's research engine, built by Mexuri.
 
-Respond ONLY with this JSON, no markdown, no backticks, no extra text:
-{
-  "reply": "short natural response to the user",
-  "action": "build" or "research" or "chat",
-  "buildPrompt": "detailed app spec if build, otherwise null",
-  "researchQuery": "specific query if research, otherwise null"
-}
-`;
+You receive a targeted research query and return sharp, data-driven business intelligence for African founders.
 
-const EXECUTION_SYSTEM = `You are an HTML web app generator for Mexuri. Your ONLY job is to output a complete single-file HTML web app.
+OUTPUT RULES:
+- Use ## headers to structure sections
+- Use **bold** for key terms, companies, and figures
+- Use markdown tables for comparisons, market share, rankings, or side-by-side data
+- Use bullet points for lists of insights or recommendations
+- When numeric data exists that can be visualized, output a chart block:
 
-STRICT RULES:
-- Start with <!DOCTYPE html> — nothing before it, no backticks, no explanation, no thinking
-- NEVER output Python, React, markdown, code fences, or any other language
-- Use Inter font from Google Fonts
-- Color scheme: background #0f0f0f, text #f0f0f0, accent #7c5cfc, surface #1a1a1a
-- Border radius: 12px cards, 8px buttons
-- Clean, minimal, modern design
-- Import Tailwind CDN: <script src="https://cdn.tailwindcss.com"></script>
-- Fully functional with vanilla JavaScript
-- Output ONLY the HTML. Nothing else. No thinking. No explanation.`;
-
-const RESEARCH_SYSTEM = `You are Asha's research engine built by Mexuri. You provide sharp, data-driven business intelligence for African founders.
-
-Formatting rules:
-- Use markdown headers, bullet points, and **bold key terms**
-- Use markdown tables for comparisons, rankings, or structured data
-- When data can be visualized, output a chart block like this:
 \`\`\`chart
 {"type": "bar", "title": "Chart Title", "data": [{"name": "Label", "value": 100}]}
 \`\`\`
-- For pie charts use "type": "pie"
-- Be concise, factual, and focused on actionable insights for the African market`;
 
+- Use "type": "pie" for market share or distribution data
+- Use "type": "bar" for comparisons, rankings, or trends over time
+- Always end with a ## Bottom Line section with 2-3 sharp, actionable takeaways for an African founder
+- Be factual, concise, and specific — no fluff`;
+
+
+// ============================================================
+// PROCESS 2B — EXECUTION
+// Model: qwen/qwen3-32b (specialized code generation)
+// Job: Receive the build spec from the reasoning engine
+//      and generate a complete, styled, functional HTML app.
+// ============================================================
+const EXECUTION_SYSTEM = `You are Asha's execution engine, built by Mexuri.
+
+You receive a detailed app specification and output a single complete HTML file.
+
+STRICT OUTPUT RULES:
+- Your response MUST start with <!DOCTYPE html> — the very first characters
+- NO thinking text, NO explanation, NO markdown, NO backticks, NO code fences
+- NEVER output Python, React, Vue, or any other language or framework
+- ONE file only — all CSS and JS must be inline
+
+DESIGN SYSTEM:
+- Font: Inter from Google Fonts
+- Background: #0f0f0f
+- Surface (cards, panels): #1a1a1a  
+- Text: #f0f0f0
+- Accent (buttons, highlights): #7c5cfc
+- Border radius: 12px for cards, 8px for buttons
+- Tailwind CDN: <script src="https://cdn.tailwindcss.com"></script>
+
+APP QUALITY RULES:
+- Fully functional with vanilla JavaScript
+- All interactions must work: forms submit, buttons respond, data updates
+- Use localStorage for any data that should persist
+- Mobile responsive layout
+- Clean, minimal, modern UI — no gradients, no drop shadows unless subtle
+
+OUTPUT: The complete HTML file. Nothing before <!DOCTYPE html>. Nothing after </html>.`;
+
+
+// ============================================================
+// HANDLER
+// ============================================================
 export default async function handler(req, res) {
     if (req.method !== "POST") return res.status(405).end();
 
@@ -79,8 +119,9 @@ export default async function handler(req, res) {
     const lastMessage = messages[messages.length - 1].content;
 
     try {
-        // REASONING — llama decides what to do
-        console.log("Reasoning about:", lastMessage.slice(0, 100));
+
+        // ── REASONING ──────────────────────────────────────────
+        console.log("[REASONING] Input:", lastMessage.slice(0, 120));
 
         const reasonRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
@@ -92,9 +133,9 @@ export default async function handler(req, res) {
                 model: "llama-3.3-70b-versatile",
                 messages: [
                     { role: "system", content: REASONING_SYSTEM },
-                    ...messages,
+                    { role: "user", content: lastMessage },
                 ],
-                temperature: 0.2,
+                temperature: 0.1,
                 max_tokens: 1024,
             }),
         });
@@ -102,16 +143,15 @@ export default async function handler(req, res) {
         const reasonData = await reasonRes.json();
         let rawReason = reasonData.choices?.[0]?.message?.content ?? "{}";
 
-        // Strip markdown fences if llama wraps JSON in them
         rawReason = rawReason.replace(/^```[\w]*\n?/i, "").replace(/```\s*$/i, "").trim();
 
-        console.log("Reasoning output:", rawReason.slice(0, 300));
+        console.log("[REASONING] Output:", rawReason.slice(0, 300));
 
         let parsed;
         try {
             parsed = JSON.parse(rawReason);
         } catch {
-            // JSON parse failed — treat raw text as plain chat reply
+            console.log("[REASONING] JSON parse failed, falling back to chat");
             parsed = { reply: rawReason, action: "chat", buildPrompt: null, researchQuery: null };
         }
 
@@ -120,11 +160,12 @@ export default async function handler(req, res) {
         const buildPrompt = parsed.buildPrompt ?? lastMessage;
         const researchQuery = parsed.researchQuery ?? lastMessage;
 
-        console.log("Action decided:", action);
+        console.log("[REASONING] Action:", action);
 
-        // EXECUTION — qwen builds the app
+
+        // ── EXECUTION ──────────────────────────────────────────
         if (action === "build") {
-            console.log("Executing build for:", buildPrompt.slice(0, 100));
+            console.log("[EXECUTION] Building:", buildPrompt.slice(0, 150));
 
             const buildRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
@@ -138,7 +179,7 @@ export default async function handler(req, res) {
                         { role: "system", content: EXECUTION_SYSTEM },
                         { role: "user", content: buildPrompt },
                     ],
-                    temperature: 0.3,
+                    temperature: 0.2,
                     max_tokens: 8192,
                 }),
             });
@@ -146,29 +187,29 @@ export default async function handler(req, res) {
             const buildData = await buildRes.json();
             let html = buildData.choices?.[0]?.message?.content ?? "";
 
-            // Strip thinking block and markdown fences
             html = html.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
             html = html.replace(/^```[\w]*\n?/i, "").replace(/```\s*$/i, "").trim();
 
-            console.log("HTML starts with:", html.slice(0, 50));
+            console.log("[EXECUTION] HTML starts with:", html.slice(0, 60));
 
             if (html.includes("<!DOCTYPE") || html.includes("<html")) {
                 const slug = generateSlug();
                 await supabase.from("apps").insert({ slug, html, prompt: lastMessage });
-                console.log("App saved:", slug);
+                console.log("[EXECUTION] App saved with slug:", slug);
                 return res.status(200).json({ reply, slug, action });
             } else {
-                console.log("Build failed, raw:", html.slice(0, 300));
+                console.log("[EXECUTION] Failed. Raw output:", html.slice(0, 300));
                 return res.status(200).json({
-                    reply: reply + " (App generation failed, please try again.)",
+                    reply: "I tried to build that but something went wrong. Try describing it differently.",
                     action
                 });
             }
         }
 
-        // RESEARCH — groq compound with web search
+
+        // ── RESEARCH ───────────────────────────────────────────
         if (action === "research") {
-            console.log("Researching:", researchQuery.slice(0, 100));
+            console.log("[RESEARCH] Query:", researchQuery.slice(0, 150));
 
             const researchRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
@@ -182,7 +223,7 @@ export default async function handler(req, res) {
                         { role: "system", content: RESEARCH_SYSTEM },
                         { role: "user", content: researchQuery },
                     ],
-                    temperature: 0.5,
+                    temperature: 0.4,
                     max_tokens: 2048,
                 }),
             });
@@ -190,14 +231,17 @@ export default async function handler(req, res) {
             const researchData = await researchRes.json();
             const researchReply = researchData.choices?.[0]?.message?.content ?? reply;
 
+            console.log("[RESEARCH] Done, length:", researchReply.length);
             return res.status(200).json({ reply: researchReply, action });
         }
 
-        // CHAT — return the reply
+
+        // ── CHAT ───────────────────────────────────────────────
+        console.log("[CHAT] Returning reply");
         return res.status(200).json({ reply, action });
 
     } catch (error) {
-        console.error("Handler error:", error);
+        console.error("[ERROR]", error);
         return res.status(500).json({ error: error.message });
     }
 }
