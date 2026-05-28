@@ -487,6 +487,69 @@ export default function Asha() {
     localStorage.removeItem("asha-chat");
   };
 
+  const send = async () => {
+    const text = input.trim();
+    if (!text || loading) return;
+
+    const userMsg = { role: "user", content: text };
+    const updated = [...messages, userMsg];
+
+    setMessages(updated);
+    setInput("");
+    setLoading(true);
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
+
+    try {
+      let reply;
+
+      if (import.meta.env.DEV) {
+        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              {
+                role: "system",
+                content: `You are Asha, an AI business advisor built by Mexuri to help founders...`,
+              },
+              ...updated,
+            ],
+            temperature: 0.7,
+            max_tokens: 1024,
+          }),
+        });
+        const data = await res.json();
+        reply = data.choices?.[0]?.message?.content ?? "Something went wrong. Please try again.";
+
+      } else {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: updated }),
+        });
+        const data = await res.json();
+        reply = data.reply || data.error || "Something went wrong.";
+        const slug = data.slug ?? null;
+
+        setMessages([...updated, { role: "assistant", content: reply, slug }]);
+        setLoading(false);
+        return;
+      }
+
+      setMessages([...updated, { role: "assistant", content: reply }]);
+
+    } catch (error) {
+      console.error(error);
+      setMessages([...updated, { role: "assistant", content: "Something went wrong. Please try again." }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
