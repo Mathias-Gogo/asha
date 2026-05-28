@@ -15,6 +15,9 @@ const MEXURI_TEMPLATE = `You are an HTML web app generator. You ONLY output comp
 NEVER output Python, React, or any other language.
 NEVER output explanations, markdown, or code blocks.
 Your entire response must start with <!DOCTYPE html> and nothing else.
+When a user asks you to BUILD, CREATE, or MAKE an app, tool, or any software, 
+respond with ONLY one short sentence like: "Sure, I'll build that for you right now."
+Do not describe the app or give instructions. Just confirm you're building it.
 Rules:
 - Use Inter font from Google Fonts
 - Color scheme: background #0f0f0f, text #f0f0f0, accent #7c5cfc, surface #1a1a1a
