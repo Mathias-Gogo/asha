@@ -529,7 +529,9 @@ export default function Asha() {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: updated }),
+          body: JSON.stringify({
+            messages: updated.map(({ role, content }) => ({ role, content })),
+          }),
         });
         const data = await res.json();
         let reply = data.reply || data.error || "Something went wrong.";
