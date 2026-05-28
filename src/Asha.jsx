@@ -44,6 +44,7 @@ function ChartRenderer({ content }) {
 }
 
 function AshaMessage({ content }) {
+  if (!content) return null;
   const parts = [];
   const regex = /```chart\n([\s\S]*?)```/g;
   let last = 0;
@@ -521,7 +522,7 @@ export default function Asha() {
           }),
         });
         const data = await res.json();
-        reply = data.choices[0].message.content;
+        reply = data.choices?.[0]?.message?.content ?? "Something went wrong. Please try again.";
 
       } else {
         const res = await fetch("/api/chat", {
@@ -530,7 +531,7 @@ export default function Asha() {
           body: JSON.stringify({ messages: updated }),
         });
         const data = await res.json();
-        reply = data.reply;
+        reply = data.reply || data.error || "Something went wrong.";
       }
 
       setMessages([...updated, { role: "assistant", content: reply }]);
