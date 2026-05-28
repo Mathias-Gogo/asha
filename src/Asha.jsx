@@ -544,8 +544,6 @@ export default function Asha() {
 
         const slug = data.slug ?? null;
         setMessages([...updated, { role: "assistant", content: reply, slug }]);
-
-        setMessages([...updated, { role: "assistant", content: reply, slug }]);
         setLoading(false);
         return;
       }

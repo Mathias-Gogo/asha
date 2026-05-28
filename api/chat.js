@@ -84,9 +84,18 @@ export default async function handler(req, res) {
         });
 
         const chatData = await chatRes.json();
-        const reply = chatData.choices?.[0]?.message?.content ?? "I'm here to help!";
+        if (chatData.error) {
+            console.log("[ASHA] Groq error:", JSON.stringify(chatData.error));
+            return res.status(200).json({ reply: "I ran into an issue. Please try again.", action: "chat" });
+        }
 
-        console.log("[ASHA] Reply length:", reply.length);
+        const reply = chatData.choices?.[0]?.message?.content;
+
+        if (!reply) {
+            console.log("[ASHA] Empty reply. Full response:", JSON.stringify(chatData));
+            return res.status(200).json({ reply: "I didn't get a response. Please try again.", action: "chat" });
+        }
+
 
         // ── STEP 2: Classify intent ─────────────────────────────
         const classifyRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
