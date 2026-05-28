@@ -187,10 +187,21 @@ export default async function handler(req, res) {
             const buildData = await buildRes.json();
             let html = buildData.choices?.[0]?.message?.content ?? "";
 
-            html = html.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
-            html = html.replace(/^```[\w]*\n?/i, "").replace(/```\s*$/i, "").trim();
+            // Remove thinking blocks (qwen3 thinking mode)
+            html = html.replace(/<think>[\s\S]*?<\/think>/gi, "");
 
-            console.log("[EXECUTION] HTML starts with:", html.slice(0, 60));
+            // Remove everything before <!DOCTYPE or <html
+            const doctypeIndex = html.search(/<!DOCTYPE/i);
+            const htmlTagIndex = html.search(/<html/i);
+            const startIndex = doctypeIndex !== -1 ? doctypeIndex : htmlTagIndex;
+
+            if (startIndex > 0) {
+                html = html.slice(startIndex);
+            }
+
+            html = html.trim();
+
+            console.log("[EXECUTION] HTML starts with:", html.slice(0, 80));
 
             if (html.includes("<!DOCTYPE") || html.includes("<html")) {
                 const slug = generateSlug();
