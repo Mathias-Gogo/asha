@@ -11,7 +11,7 @@ function generateSlug() {
 
 const REASONING_SYSTEM = `You are Asha's reasoning engine built by Mexuri. You analyze user requests and decide what to do.
 
-Always respond in this exact JSON format, no extra text:
+Always respond in this exact JSON format, no extra text, no markdown, no code fences:
 {
   "reply": "natural conversational response to show the user",
   "action": "chat" or "build" or "research",
@@ -23,10 +23,15 @@ Action rules:
 - "build" — user wants to create any software, app, tool, dashboard, form, game, calculator
 - "research" — user wants market data, industry analysis, competitor research, business landscape
 - "chat" — general business advice, strategy, questions
+- When responding with research or business data, use markdown tables and suggest charts where relevant
+- For chart data, output a chart block like this inside the reply field:
+  \`\`\`chart
+  {"type": "bar", "title": "Chart Title", "data": [{"name": "Label", "value": 100}]}
+  \`\`\`
 
 For "build", expand buildPrompt into a detailed spec: layout, features, data it handles, interactions.
 For "research", make researchQuery specific and targeted.
-Only return valid JSON.`;
+Only return valid JSON. No markdown. No backticks.`;
 
 const EXECUTION_SYSTEM = `You are an HTML web app generator for Mexuri. Your ONLY job is to output a complete single-file HTML web app.
 
@@ -42,8 +47,16 @@ STRICT RULES:
 - Output ONLY the HTML. Nothing else. No thinking. No explanation.`;
 
 const RESEARCH_SYSTEM = `You are Asha's research engine built by Mexuri. You provide sharp, data-driven business intelligence for African founders.
-Be concise, factual, and focused on actionable insights for the African market.
-Use markdown formatting with headers, bullet points, and bold key terms.`;
+
+Formatting rules:
+- Use markdown headers, bullet points, and **bold key terms**
+- Use markdown tables for comparisons, rankings, or structured data
+- When data can be visualized, output a chart block like this:
+\`\`\`chart
+{"type": "bar", "title": "Chart Title", "data": [{"name": "Label", "value": 100}]}
+\`\`\`
+- For pie charts use "type": "pie"
+- Be concise, factual, and focused on actionable insights for the African market`;
 
 export default async function handler(req, res) {
     if (req.method !== "POST") return res.status(405).end();
@@ -56,7 +69,7 @@ export default async function handler(req, res) {
 
     try {
         // REASONING — llama decides what to do
-        console.log("Reasoning about:", lastMessage);
+        console.log("Reasoning about:", lastMessage.slice(0, 100));
 
         const reasonRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
@@ -76,14 +89,18 @@ export default async function handler(req, res) {
         });
 
         const reasonData = await reasonRes.json();
-        const rawReason = reasonData.choices?.[0]?.message?.content ?? "{}";
+        let rawReason = reasonData.choices?.[0]?.message?.content ?? "{}";
 
-        console.log("Reasoning output:", rawReason.slice(0, 200));
+        // Strip markdown fences if llama wraps JSON in them
+        rawReason = rawReason.replace(/^```[\w]*\n?/i, "").replace(/```\s*$/i, "").trim();
+
+        console.log("Reasoning output:", rawReason.slice(0, 300));
 
         let parsed;
         try {
             parsed = JSON.parse(rawReason);
         } catch {
+            // JSON parse failed — treat raw text as plain chat reply
             parsed = { reply: rawReason, action: "chat", buildPrompt: null, researchQuery: null };
         }
 
@@ -118,6 +135,7 @@ export default async function handler(req, res) {
             const buildData = await buildRes.json();
             let html = buildData.choices?.[0]?.message?.content ?? "";
 
+            // Strip thinking block and markdown fences
             html = html.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
             html = html.replace(/^```[\w]*\n?/i, "").replace(/```\s*$/i, "").trim();
 
@@ -130,13 +148,16 @@ export default async function handler(req, res) {
                 return res.status(200).json({ reply, slug, action });
             } else {
                 console.log("Build failed, raw:", html.slice(0, 300));
-                return res.status(200).json({ reply: reply + " (App generation failed, please try again.)", action });
+                return res.status(200).json({
+                    reply: reply + " (App generation failed, please try again.)",
+                    action
+                });
             }
         }
 
-        // RESEARCH — llama with compound-beta for web search
+        // RESEARCH — groq compound with web search
         if (action === "research") {
-            console.log("Researching:", researchQuery);
+            console.log("Researching:", researchQuery.slice(0, 100));
 
             const researchRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                 method: "POST",
@@ -161,7 +182,7 @@ export default async function handler(req, res) {
             return res.status(200).json({ reply: researchReply, action });
         }
 
-        // CHAT — just return the reply
+        // CHAT — return the reply
         return res.status(200).json({ reply, action });
 
     } catch (error) {
