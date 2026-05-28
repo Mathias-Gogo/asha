@@ -12,43 +12,43 @@ function generateSlug() {
 // ============================================================
 // PROCESS 1 — REASONING
 // Model: llama-3.3-70b-versatile
-// Job: Understand the user's intent and classify it.
-//      Expand vague requests into precise, actionable specs.
-//      Output structured JSON only — no prose, no markdown.
+// Job: Understand full conversation context, classify intent,
+//      guide the user toward building, research, or chat.
 // ============================================================
-const REASONING_SYSTEM = `You are Asha's reasoning engine, built by Mexuri.
+const REASONING_SYSTEM = `You are Asha, an AI business advisor and app builder built by Mexuri for African founders.
 
-Your ONLY job is to read the user's latest message, understand their intent, and output a JSON decision object.
+You have four modes:
 
-You do NOT answer questions. You do NOT build apps. You do NOT do research.
-You ONLY classify and structure the request for the next process.
+1. CHAT — Answer business questions, give strategy advice, discuss ideas. Be sharp and concise. Use markdown where helpful.
 
-CLASSIFICATION:
-- "build" → user wants any software created: app, tool, calculator, tracker, dashboard, form, game, website, widget
-- "research" → user wants data, analysis, market research, industry landscape, competitor info, statistics, trends
-- "chat" → greetings, follow-ups, general strategy advice, clarification questions
+2. RESEARCH — When the user wants market data, industry analysis, or business intelligence, set action to "research" and provide a targeted search query.
 
-OUTPUT FORMAT — valid JSON only, no markdown, no backticks, no explanation:
+3. CLARIFY — When the user explicitly confirms they want something built ("yes build it", "go ahead", "create it", "make it"), ask 2-3 focused questions to gather requirements before building.
+
+4. BUILD — Only trigger when the user has already answered your clarifying questions and you have enough detail to build. Never build on the first mention of an idea.
+
+CONVERSATION RULES:
+- If the user shares a vague idea ("I want a shoe app"), engage with it — give advice, ask about their target market, then naturally suggest "Want me to build a quick prototype?"
+- If the user says yes to building → set action to "clarify", ask focused questions
+- If the user has answered your questions with enough detail → set action to "build"
+- NEVER set action to "build" on the first message about an idea
+- Always be conversational and helpful — never robotic
+
+OUTPUT — valid JSON only, no markdown wrapping, no backticks, no explanation outside the JSON:
 {
-  "action": "build" | "research" | "chat",
-  "reply": "one short sentence acknowledging what you are about to do",
-  "buildPrompt": "if action is build: a detailed technical spec covering layout, features, interactions, data flow. If not build: null",
-  "researchQuery": "if action is research: a precise, targeted search query. If not research: null"
+  "action": "chat" | "research" | "clarify" | "build",
+  "reply": "your full response — natural, well formatted with markdown headings, bullets, tables where relevant",
+  "buildPrompt": "detailed technical spec only if action is build, otherwise null",
+  "researchQuery": "targeted search query only if action is research, otherwise null"
 }
 
-RULES:
-- Base classification ONLY on the user's last message
-- For build: expand the user's idea into a rich spec the execution engine can use directly
-- For research: distill the user's question into a precise search query
-- reply must be natural and conversational — one sentence max
-- Return ONLY the JSON object. Nothing else.`;
+The reply field is what the user sees. Make it excellent.`;
 
 
 // ============================================================
 // PROCESS 2A — RESEARCH
-// Model: groq/compound (has live web search)
-// Job: Execute the research query from the reasoning engine.
-//      Return structured, formatted intelligence.
+// Model: compound-beta (has live web search)
+// Job: Execute the research query, return structured intelligence.
 // ============================================================
 const RESEARCH_SYSTEM = `You are Asha's research engine, built by Mexuri.
 
@@ -73,9 +73,8 @@ OUTPUT RULES:
 
 // ============================================================
 // PROCESS 2B — EXECUTION
-// Model: qwen/qwen3-32b (specialized code generation)
-// Job: Receive the build spec from the reasoning engine
-//      and generate a complete, styled, functional HTML app.
+// Model: llama-3.3-70b-versatile
+// Job: Receive build spec, generate complete single-file HTML app.
 // ============================================================
 const EXECUTION_SYSTEM = `You are Asha's execution engine, built by Mexuri.
 
@@ -90,7 +89,7 @@ STRICT OUTPUT RULES:
 DESIGN SYSTEM:
 - Font: Inter from Google Fonts
 - Background: #0f0f0f
-- Surface (cards, panels): #1a1a1a  
+- Surface (cards, panels): #1a1a1a
 - Text: #f0f0f0
 - Accent (buttons, highlights): #7c5cfc
 - Border radius: 12px for cards, 8px for buttons
@@ -101,7 +100,7 @@ APP QUALITY RULES:
 - All interactions must work: forms submit, buttons respond, data updates
 - Use localStorage for any data that should persist
 - Mobile responsive layout
-- Clean, minimal, modern UI — no gradients, no drop shadows unless subtle
+- Clean, minimal, modern UI — no gradients, no heavy shadows
 
 OUTPUT: The complete HTML file. Nothing before <!DOCTYPE html>. Nothing after </html>.`;
 
@@ -130,12 +129,12 @@ export default async function handler(req, res) {
                 Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
             },
             body: JSON.stringify({
-                model: "openai/gpt-oss-120b",
+                model: "llama-3.3-70b-versatile",
                 messages: [
                     { role: "system", content: REASONING_SYSTEM },
-                    { role: "user", content: lastMessage },
+                    ...messages,
                 ],
-                temperature: 0.1,
+                temperature: 0.4,
                 max_tokens: 1024,
             }),
         });
@@ -173,26 +172,25 @@ export default async function handler(req, res) {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
                 },
-
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
                     messages: [
                         { role: "system", content: EXECUTION_SYSTEM },
-                        { role: "user", content: buildPrompt },
+                        { role: "user", content: buildPrompt.slice(0, 800) },
                     ],
                     temperature: 0.2,
-                    max_tokens: 8192,
+                    max_tokens: 4096,
                 }),
             });
 
             const buildData = await buildRes.json();
-            console.log("[EXECUTION] Full API response:", JSON.stringify(buildData).slice(0, 500));
+            console.log("[EXECUTION] API response:", JSON.stringify(buildData).slice(0, 300));
             let html = buildData.choices?.[0]?.message?.content ?? "";
 
-            // Remove thinking blocks (qwen3 thinking mode)
+            // Strip thinking blocks
             html = html.replace(/<think>[\s\S]*?<\/think>/gi, "");
 
-            // Remove everything before <!DOCTYPE or <html
+            // Find where actual HTML starts
             const doctypeIndex = html.search(/<!DOCTYPE/i);
             const htmlTagIndex = html.search(/<html/i);
             const startIndex = doctypeIndex !== -1 ? doctypeIndex : htmlTagIndex;
@@ -208,12 +206,12 @@ export default async function handler(req, res) {
             if (html.includes("<!DOCTYPE") || html.includes("<html")) {
                 const slug = generateSlug();
                 await supabase.from("apps").insert({ slug, html, prompt: lastMessage });
-                console.log("[EXECUTION] App saved with slug:", slug);
+                console.log("[EXECUTION] App saved:", slug);
                 return res.status(200).json({ reply, slug, action });
             } else {
-                console.log("[EXECUTION] Failed. Raw output:", html.slice(0, 300));
+                console.log("[EXECUTION] Failed. Raw:", html.slice(0, 300));
                 return res.status(200).json({
-                    reply: "I tried to build that but something went wrong. Try describing it differently.",
+                    reply: "I tried to build that but hit an issue. Could you describe what you need in a bit more detail?",
                     action
                 });
             }
@@ -249,8 +247,8 @@ export default async function handler(req, res) {
         }
 
 
-        // ── CHAT ───────────────────────────────────────────────
-        console.log("[CHAT] Returning reply");
+        // ── CHAT / CLARIFY ─────────────────────────────────────
+        console.log("[CHAT/CLARIFY] Returning reply");
         return res.status(200).json({ reply, action });
 
     } catch (error) {
