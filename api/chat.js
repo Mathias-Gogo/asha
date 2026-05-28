@@ -19,10 +19,10 @@ Always respond in this exact JSON format, no extra text, no markdown, no code fe
   "researchQuery": "specific search query if action is research, otherwise null"
 }
 
-Action rules:
-- "build" — user wants to create any software, app, tool, dashboard, form, game, calculator
-- "research" — user wants market data, industry analysis, competitor research, business landscape
-- "chat" — general business advice, strategy, questions
+CLASSIFICATION RULES — be decisive:
+- "build" = ANY request to create, build, make, generate, develop software, app, tool, calculator, tracker, dashboard, form, game, website, widget, list app
+- "research" = ANY request for market research, industry analysis, business landscape, competitor analysis, data, statistics, trends
+- "chat" = ONLY for greetings, general advice, strategy questions, follow-up conversation
 - When responding with research or business data, use markdown tables and suggest charts where relevant
 - For chart data, output a chart block like this inside the reply field:
   \`\`\`chart
@@ -31,7 +31,18 @@ Action rules:
 
 For "build", expand buildPrompt into a detailed spec: layout, features, data it handles, interactions.
 For "research", make researchQuery specific and targeted.
-Only return valid JSON. No markdown. No backticks.`;
+Only return valid JSON. No markdown. No backticks.
+
+IMPORTANT: Always classify based on the LAST user message only, ignore previous messages.
+
+Respond ONLY with this JSON, no markdown, no backticks, no extra text:
+{
+  "reply": "short natural response to the user",
+  "action": "build" or "research" or "chat",
+  "buildPrompt": "detailed app spec if build, otherwise null",
+  "researchQuery": "specific query if research, otherwise null"
+}
+`;
 
 const EXECUTION_SYSTEM = `You are an HTML web app generator for Mexuri. Your ONLY job is to output a complete single-file HTML web app.
 
@@ -83,7 +94,7 @@ export default async function handler(req, res) {
                     { role: "system", content: REASONING_SYSTEM },
                     ...messages,
                 ],
-                temperature: 0.4,
+                temperature: 0.2,
                 max_tokens: 1024,
             }),
         });
