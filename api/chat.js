@@ -87,6 +87,8 @@ export default async function handler(req, res) {
             const codeData = await codeRes.json();
             let html = codeData.choices?.[0]?.message?.content ?? "";
 
+            html = html.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+
             // Strip markdown fences if present
             html = html.replace(/^```[\w]*\n?/i, "").replace(/```\s*$/i, "").trim();
 

@@ -30,6 +30,7 @@ export default function AppBlock({ slug }) {
                 className="app-block-frame"
                 sandbox="allow-scripts allow-same-origin allow-forms"
                 title="Generated App"
+                style={{ width: "100%", height: "500px", border: "none", display: "block" }}
             />
         </div>
     );
