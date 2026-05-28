@@ -1,17 +1,44 @@
-// api/chat.js
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_KEY
+);
+
+function generateSlug() {
+    return Math.random().toString(36).slice(2, 8);
+}
+
+const APP_TRIGGER = /build|create|make|generate/i;
+
+const MEXURI_TEMPLATE = `You are an HTML web app generator. You ONLY output complete single-file HTML. 
+NEVER output Python, React, or any other language.
+NEVER output explanations, markdown, or code blocks.
+Your entire response must start with <!DOCTYPE html> and nothing else.
+Rules:
+- Use Inter font from Google Fonts
+- Color scheme: background #0f0f0f, text #f0f0f0, accent #7c5cfc, surface #1a1a1a
+- Border radius: 12px cards, 8px buttons
+- Clean, minimal, modern design
+- Import Tailwind from CDN: <script src="https://cdn.tailwindcss.com"></script>
+- Include a floating chat button (bottom right, #7c5cfc) that opens a chat panel
+- The chat panel calls POST /api/chat with { messages: [...] } to fix or improve the app
+- Return ONLY the HTML, no explanation, no markdown, no backticks`;
+
 export default async function handler(req, res) {
-    if (req.method !== "POST") {
-        return res.status(405).json({ error: "Method not allowed" });
-    }
+    if (req.method !== "POST") return res.status(405).end();
 
     const { messages } = req.body;
-
-    if (!messages || !Array.isArray(messages)) {
+    if (!messages || !Array.isArray(messages))
         return res.status(400).json({ error: "Messages array required" });
-    }
+
+    const lastMessage = messages[messages.length - 1].content;
+    const isAppRequest = /build|create|make|generate|develop/i.test(lastMessage) &&
+        /app|tool|calculator|tracker|dashboard|form|game|website|page/i.test(lastMessage);
 
     try {
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        // Step 1 — normal Asha response
+        const chatRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -22,23 +49,7 @@ export default async function handler(req, res) {
                 messages: [
                     {
                         role: "system",
-                        content: `You are Asha, an AI business advisor built by Mexuri to help founders. You help with business research and strategy particularly in the African market. 
-                                You have data on all business sectors and know what works and what fails. You get to know more about the business before you conduct strategy and research. Be concise, sharp, and insightful.
-  
-                                About Mexuri:
-                                - Mexuri is a tech company dedicated to integrating technology into all African sectors to provide more opportunity for Africans and better the standard of living.
-                                
-                                When responding:
-                                - If responding about who you are and who built you, respond simply, in a way a 16 year old would understand, but keep it fluent
-                                - Use **bold** for key terms and important points
-                                - Use bullet lists or numbered lists where appropriate
-                                - Use tables for comparisons
-                                - Use headings to structure long responses
-                                - When the user asks for data that can be visualized, output a chart block like this:
-                                \`\`\`chart
-                                {"type": "bar", "title": "Chart Title", "data": [{"name": "Label", "value": 100}]}
-                                \`\`\`
-                                - For pie charts use: {"type": "pie", ...} with the same data structure`,
+                        content: `You are Asha, an AI business advisor built by Mexuri...`,
                     },
                     ...messages,
                 ],
@@ -47,24 +58,46 @@ export default async function handler(req, res) {
             }),
         });
 
-        if (!response.ok) {
-            const errText = await response.text();
-            console.error("Groq API error:", response.status, errText);
-            return res.status(502).json({ error: "Groq API error", details: errText });
-        }
+        const chatData = await chatRes.json();
+        const reply = chatData.choices?.[0]?.message?.content ?? "Something went wrong.";
 
-        const data = await response.json();
-        const reply = data.choices?.[0]?.message?.content;
+        // Step 2 — if app request, generate with qwen
+        if (isAppRequest) {
+            const codeRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+                },
+                body: JSON.stringify({
+                    model: "qwen-2.5-coder-32b",
+                    messages: [
+                        { role: "system", content: MEXURI_TEMPLATE },
+                        { role: "user", content: lastMessage },
+                    ],
+                    temperature: 0.3,
+                    max_tokens: 4096,
+                }),
+            });
 
-        if (!reply) {
-            console.error("Unexpected Groq response:", data);
-            return res.status(502).json({ error: "Invalid response from Groq" });
+
+            const codeData = await codeRes.json();
+            const html = codeData.choices?.[0]?.message?.content;
+            console.log("Generated HTML length:", html?.length);
+            console.log("Starts with:", html?.slice(0, 30));
+
+            if (html) {
+                const slug = generateSlug();
+                await supabase.from("apps").insert({ slug, html, prompt: lastMessage });
+
+                return res.status(200).json({ reply, slug });
+            }
         }
 
         return res.status(200).json({ reply });
 
     } catch (error) {
-        console.error("Server error:", error);
-        return res.status(500).json({ error: error.message || "Something went wrong" });
+        console.error(error);
+        return res.status(500).json({ error: error.message });
     }
 }
