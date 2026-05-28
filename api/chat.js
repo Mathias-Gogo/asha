@@ -74,10 +74,10 @@ export default async function handler(req, res) {
                     Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
                 },
                 body: JSON.stringify({
-                    model: "qwen-2.5-coder-32b",
+                    model: "llama-3.3-70b-versatile",
                     messages: [
                         { role: "system", content: MEXURI_TEMPLATE },
-                        { role: "user", content: `Build this as a complete HTML web app: ${lastMessage}` },
+                        { role: "user", content: `Generate a complete single-file HTML web app for: ${lastMessage}. Start your response with <!DOCTYPE html> and include everything in one file.` },
                     ],
                     temperature: 0.3,
                     max_tokens: 4096,
