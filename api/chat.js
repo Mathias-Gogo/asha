@@ -130,7 +130,7 @@ export default async function handler(req, res) {
                 Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
             },
             body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
+                model: "openai/gpt-oss-120b",
                 messages: [
                     { role: "system", content: REASONING_SYSTEM },
                     { role: "user", content: lastMessage },
@@ -174,7 +174,7 @@ export default async function handler(req, res) {
                     Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
                 },
                 body: JSON.stringify({
-                    model: "qwen/qwen3-32b",
+                    model: "llama-3.3-70b-versatile",
                     messages: [
                         { role: "system", content: EXECUTION_SYSTEM },
                         { role: "user", content: buildPrompt },
