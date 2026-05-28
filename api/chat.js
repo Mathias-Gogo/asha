@@ -20,14 +20,16 @@ HOW YOU WORK:
 - Use markdown formatting: headers, bullets, bold text, tables where relevant
 - Be conversational, smart, and direct — like a sharp co-founder`;
 
-const CLASSIFIER_SYSTEM = `You are a classifier. Given a conversation, output ONLY one word: "build", "research", or "chat".
+const CLASSIFIER_SYSTEM = `You are a classifier. You must output ONLY one single word with zero punctuation, zero explanation, and zero whitespace.
+
+The word must be exactly one of these three: build, research, chat
 
 Rules:
-- "build" = the user is asking to create, build, make, or generate an app, tool, dashboard, or website — even in the first message
-- "research" = the user is asking for market data, industry analysis, or business intelligence
-- "chat" = everything else including greetings, strategy questions, follow-ups
+- build = user wants to create, build, make, or generate any app, tool, calculator, dashboard, or website
+- research = user wants market data, industry analysis, or business intelligence
+- chat = everything else
 
-Output ONLY the single word. Nothing else.`;
+IMPORTANT: Output the single word only. No period. No quotes. No newline. Just the word.`;
 
 const EXECUTION_SYSTEM = `You are an HTML web app generator. Output a single complete HTML file.
 
@@ -111,13 +113,16 @@ export default async function handler(req, res) {
                 ],
                 temperature: 0.1,
                 max_tokens: 10,
+                reasoning_effort: "none",
             }),
         });
 
         const classifyData = await classifyRes.json();
-        const action = classifyData.choices?.[0]?.message?.content?.trim().toLowerCase() ?? "chat";
+        const rawAction = classifyData.choices?.[0]?.message?.content ?? "";
+        const stripped = rawAction.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+        const action = stripped.toLowerCase().replace(/[^a-z]/g, "") || "chat";
 
-        console.log("[CLASSIFIER] Action:", action);
+        console.log("[CLASSIFIER] Raw:", JSON.stringify(rawAction), "→ Action:", action);
 
         // ── STEP 3: Execute if needed ───────────────────────────
         if (action === "build") {
