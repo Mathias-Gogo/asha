@@ -17,5 +17,7 @@ export default async function handler(req, res) {
     if (error || !data) return res.status(404).send("App not found");
 
     res.setHeader("Content-Type", "text/html");
+    res.setHeader("X-Frame-Options", "ALLOWALL");
+    res.setHeader("Content-Security-Policy", "frame-ancestors *");
     return res.status(200).send(data.html);
 }
