@@ -532,8 +532,18 @@ export default function Asha() {
           body: JSON.stringify({ messages: updated }),
         });
         const data = await res.json();
-        reply = data.reply || data.error || "Something went wrong.";
+        let reply = data.reply || data.error || "Something went wrong.";
+
+        // If reply looks like JSON, extract just the reply field
+        try {
+          const parsed = JSON.parse(reply);
+          if (parsed.reply) reply = parsed.reply;
+        } catch {
+          // not JSON, use as-is
+        }
+
         const slug = data.slug ?? null;
+        setMessages([...updated, { role: "assistant", content: reply, slug }]);
 
         setMessages([...updated, { role: "assistant", content: reply, slug }]);
         setLoading(false);
