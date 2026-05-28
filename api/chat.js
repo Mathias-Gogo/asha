@@ -173,6 +173,7 @@ export default async function handler(req, res) {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
                 },
+
                 body: JSON.stringify({
                     model: "llama-3.3-70b-versatile",
                     messages: [
@@ -185,6 +186,7 @@ export default async function handler(req, res) {
             });
 
             const buildData = await buildRes.json();
+            console.log("[EXECUTION] Full API response:", JSON.stringify(buildData).slice(0, 500));
             let html = buildData.choices?.[0]?.message?.content ?? "";
 
             // Remove thinking blocks (qwen3 thinking mode)
