@@ -229,7 +229,7 @@ export default async function handler(req, res) {
                     Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
                 },
                 body: JSON.stringify({
-                    model: "groq/compound",
+                    model: "compound-beta",
                     messages: [
                         { role: "system", content: RESEARCH_SYSTEM },
                         { role: "user", content: researchQuery },
