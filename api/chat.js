@@ -90,7 +90,8 @@ export default async function handler(req, res) {
             return res.status(200).json({ reply: "I ran into an issue. Please try again.", action: "chat" });
         }
 
-        const reply = chatData.choices?.[0]?.message?.content;
+        let reply = chatData.choices?.[0]?.message?.content;
+        if (reply) reply = reply.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
 
         if (!reply) {
             console.log("[ASHA] Empty reply. Full response:", JSON.stringify(chatData));
@@ -189,7 +190,8 @@ export default async function handler(req, res) {
             });
 
             const researchData = await researchRes.json();
-            const researchReply = researchData.choices?.[0]?.message?.content ?? reply;
+            let researchReply = researchData.choices?.[0]?.message?.content ?? reply;
+            researchReply = researchReply.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
             console.log("[RESEARCH] Done:", researchReply.length);
             return res.status(200).json({ reply: researchReply, action });
         }
