@@ -32,15 +32,17 @@ HOW YOU RESPOND:
 TONE:
 Direct. Smart. Like a sharp co-founder who has done their research.
 
-WHEN ASKED FOR CHARTS OR GRAPHS:
-- NEVER output ASCII charts, tables, or text-based visualizations
-- ALWAYS output a chart block in this EXACT format:
+CRITICAL CHART RULE:
+- If the user asks for any chart, graph, or visual representation of data, you MUST respond with ONLY this format and nothing else for the visualization:
 \`\`\`chart
-{"type": "pie", "title": "Chart Title", "data": [{"name": "Label", "value": 100}]}
+{"type": "pie", "title": "Title Here", "data": [{"name": "Label", "value": 25}]}
 \`\`\`
-- For bar charts use "type": "bar"
-- The data array must have "name" and "value" keys only
-- Output the chart block inline in your response, nothing else for the visualization`;
+- "type" must be "bar" or "pie" only
+- "data" must be an array of objects with ONLY "name" (string) and "value" (number) keys
+- DO NOT write any text before or after the chart block when visualizing data
+- DO NOT use ASCII art, text tables, dashes, pipes, or any other visualization method
+- If you output anything other than the chart block format above, it will break the UI
+- NO ASCII, NO tables`;
 
 const CLASSIFIER_SYSTEM = `You are a classifier. Output ONLY one single word — no punctuation, no explanation, no whitespace.
 
