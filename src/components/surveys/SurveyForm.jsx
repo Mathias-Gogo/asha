@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
+import { useLocation } from "react-router-dom";
 
 const STYLES = `
   .sf-wrap {
@@ -378,10 +379,21 @@ export default function SurveyForm({ survey, onUpdate }) {
   const [publishing, setPublishing] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
+  const location = useLocation();
+  const prefillData = location.state?.prefillData;
+
   // Load full survey data including questions
   useEffect(() => {
+    if (prefillData) {
+      // Coming from Asha chat with prefill data
+      setTitle(prefillData.title || "");
+      setDescription(prefillData.description || "");
+      setQuestions(prefillData.questions || []);
+      // Don't call loadFull — we have the data
+      return;
+    }
     loadFull();
-  }, [survey.id]);
+  }, [survey.id, prefillData]);
 
   const loadFull = async () => {
     const { data } = await supabase

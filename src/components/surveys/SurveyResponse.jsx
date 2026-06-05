@@ -1,6 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../context/AuthContext";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell
+} from "recharts";
 
 const STYLES = `
   .sr-wrap {
@@ -328,7 +332,312 @@ const STYLES = `
   @media (max-width: 768px) {
     .sr-right { display: none; }
   }
+
+    /* ── Charts ── */
+  .charts-dashboard {
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  .charts-dashboard::-webkit-scrollbar { width: 3px; }
+  .charts-dashboard::-webkit-scrollbar-track { background: transparent; }
+  .charts-dashboard::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 3px; }
+
+  .chart-wrap {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 16px 18px;
+    position: relative;
+  }
+
+  [data-theme="light"] .chart-wrap {
+    background: #ffffff;
+    border-color: rgba(0,0,0,0.06);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+
+  .chart-header {
+    margin-bottom: 14px;
+  }
+
+  .chart-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.4;
+  }
+
+  [data-theme="light"] .chart-title { color: rgba(0,0,0,0.75); }
+
+  .chart-meta {
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+    margin-top: 3px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  [data-theme="light"] .chart-meta { color: rgba(0,0,0,0.3); }
+
+  .chart-score-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+
+  .chart-score {
+    background: rgba(124,58,237,0.08);
+    border: 1px solid rgba(124,58,237,0.15);
+    border-radius: 10px;
+    padding: 12px 20px;
+    text-align: center;
+    min-width: 80px;
+  }
+
+  .chart-score-val {
+    font-size: 24px;
+    font-weight: 800;
+    color: #a78bfa;
+    line-height: 1;
+  }
+
+  .chart-score-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 4px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  [data-theme="light"] .chart-score-label { color: rgba(0,0,0,0.35); }
+
+  .chart-body {
+    width: 100%;
+  }
+
+  .chart-body.split {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .chart-donut {
+    flex: 0 0 160px;
+    height: 160px;
+  }
+
+  .chart-legend {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .legend-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .legend-name {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  [data-theme="light"] .legend-name { color: rgba(0,0,0,0.6); }
+
+  .legend-bar-wrap {
+    height: 4px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  [data-theme="light"] .legend-bar-wrap { background: rgba(0,0,0,0.06); }
+
+  .legend-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  .legend-pct {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  [data-theme="light"] .legend-pct { color: rgba(0,0,0,0.4); }
+
+  /* Multi choice horizontal bars */
+  .multi-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .multi-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .multi-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    min-width: 100px;
+    max-width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+  }
+
+  [data-theme="light"] .multi-label { color: rgba(0,0,0,0.6); }
+
+  .multi-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  [data-theme="light"] .multi-bar-wrap { background: rgba(0,0,0,0.06); }
+
+  .multi-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  .multi-pct {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.35);
+    min-width: 70px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  [data-theme="light"] .multi-pct { color: rgba(0,0,0,0.4); }
+
+  /* Text responses */
+  .text-responses {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .text-responses::-webkit-scrollbar { width: 3px; }
+  .text-responses::-webkit-scrollbar-track { background: transparent; }
+  .text-responses::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 3px; }
+
+  .text-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+
+  [data-theme="light"] .text-item {
+    background: #f8f8fc;
+    border-color: rgba(0,0,0,0.05);
+  }
+
+  .text-num {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(124,58,237,0.5);
+    min-width: 20px;
+  }
+
+  .text-content {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.6;
+  }
+
+  [data-theme="light"] .text-content { color: rgba(0,0,0,0.65); }
+
+  .text-empty {
+    font-size: 12px;
+    color: rgba(255,255,255,0.2);
+    text-align: center;
+    padding: 20px;
+  }
+
+  [data-theme="light"] .text-empty { color: rgba(0,0,0,0.25); }
+
+  /* Dashboard / Raw toggle */
+  .view-toggle {
+    display: flex;
+    gap: 2px;
+    padding: 12px 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  [data-theme="light"] .view-toggle { border-bottom-color: rgba(0,0,0,0.05); }
+
+  .view-toggle-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.3);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+
+  [data-theme="light"] .view-toggle-btn { color: rgba(0,0,0,0.35); }
+
+  .view-toggle-btn:hover { color: rgba(255,255,255,0.5); }
+  [data-theme="light"] .view-toggle-btn:hover { color: rgba(0,0,0,0.55); }
+
+  .view-toggle-btn.active {
+    background: rgba(124,58,237,0.1);
+    color: #a78bfa;
+  }
+
+  [data-theme="light"] .view-toggle-btn.active { color: #7c3aed; }
 `;
+
+const CHART_COLORS = [
+  "#7c3aed", "#a78bfa", "#38bdf8", "#4ade80", "#fbbf24",
+  "#f472b6", "#fb923c", "#a3e635", "#22d3ee", "#e879f9"
+];
 
 const SEED_QUESTIONS = [
   "What patterns do you see in the responses?",
@@ -344,6 +653,234 @@ const IconSend = () => (
   </svg>
 );
 
+// ─── Rating Chart ─────────────────────────────────────────────────────────────
+function RatingChart({ question, responses }) {
+  const distribution = useMemo(() => {
+    const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    let total = 0;
+    let sum = 0;
+
+    responses.forEach(r => {
+      const val = r.answers?.[question.id];
+      const num = parseInt(val);
+      if (num >= 1 && num <= 5) {
+        counts[num]++;
+        total++;
+        sum += num;
+      }
+    });
+
+    const data = Object.entries(counts).map(([rating, count]) => ({
+      rating: `${rating}★`,
+      count,
+      percentage: total > 0 ? Math.round((count / total) * 100) : 0
+    }));
+
+    return { data, average: total > 0 ? (sum / total).toFixed(1) : "—", total };
+  }, [question.id, responses]);
+
+  return (
+    <div className="chart-wrap">
+      <div className="chart-header">
+        <div className="chart-title">{question.text}</div>
+        <div className="chart-meta">Rating · {distribution.total} responses</div>
+      </div>
+      <div className="chart-score-row">
+        <div className="chart-score">
+          <div className="chart-score-val">{distribution.average}</div>
+          <div className="chart-score-label">Average</div>
+        </div>
+      </div>
+      <div className="chart-body">
+        <ResponsiveContainer width="100%" height={180}>
+          <BarChart data={distribution.data} barSize={32}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+            <XAxis
+              dataKey="rating"
+              tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }}
+              axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
+            />
+            <YAxis
+              tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
+              axisLine={{ stroke: 'rgba(255,255,255,0.08)' }}
+              allowDecimals={false}
+            />
+            <Tooltip
+              contentStyle={{
+                background: '#1a1a24',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 8,
+                fontSize: 12,
+                color: 'rgba(255,255,255,0.8)'
+              }}
+              formatter={(value) => [`${value} responses`, 'Count']}
+            />
+            <Bar dataKey="count" fill="#7c3aed" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+// ─── Single Choice Chart ────────────────────────────────────────────────────────
+function SingleChoiceChart({ question, responses }) {
+  const data = useMemo(() => {
+    const counts = {};
+    question.options?.forEach(opt => counts[opt] = 0);
+
+    responses.forEach(r => {
+      const val = r.answers?.[question.id];
+      if (val && counts[val] !== undefined) counts[val]++;
+    });
+
+    const total = responses.length;
+    return Object.entries(counts).map(([name, count]) => ({
+      name,
+      count,
+      percentage: total > 0 ? Math.round((count / total) * 100) : 0
+    }));
+  }, [question.id, question.options, responses]);
+
+  return (
+    <div className="chart-wrap">
+      <div className="chart-header">
+        <div className="chart-title">{question.text}</div>
+        <div className="chart-meta">Single choice · {responses.length} responses</div>
+      </div>
+      <div className="chart-body split">
+        <div className="chart-donut">
+          <ResponsiveContainer width="100%" height={160}>
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={45}
+                outerRadius={70}
+                paddingAngle={3}
+                dataKey="count"
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{
+                  background: '#1a1a24',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: 8,
+                  fontSize: 12,
+                  color: 'rgba(255,255,255,0.8)'
+                }}
+                formatter={(value, name) => [`${value} votes`, name]}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="chart-legend">
+          {data.map((item, i) => (
+            <div key={item.name} className="legend-item">
+              <div className="legend-dot" style={{ background: CHART_COLORS[i % CHART_COLORS.length] }} />
+              <div className="legend-info">
+                <div className="legend-name">{item.name}</div>
+                <div className="legend-bar-wrap">
+                  <div className="legend-bar" style={{ width: `${item.percentage}%`, background: CHART_COLORS[i % CHART_COLORS.length] }} />
+                </div>
+              </div>
+              <div className="legend-pct">{item.percentage}%</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Multi Choice Chart ─────────────────────────────────────────────────────────
+function MultiChoiceChart({ question, responses }) {
+  const data = useMemo(() => {
+    const counts = {};
+    question.options?.forEach(opt => counts[opt] = 0);
+
+    responses.forEach(r => {
+      const vals = r.answers?.[question.id];
+      if (Array.isArray(vals)) {
+        vals.forEach(v => {
+          if (counts[v] !== undefined) counts[v]++;
+        });
+      }
+    });
+
+    const total = responses.length;
+    return Object.entries(counts)
+      .map(([name, count]) => ({
+        name,
+        count,
+        percentage: total > 0 ? Math.round((count / total) * 100) : 0
+      }))
+      .sort((a, b) => b.count - a.count);
+  }, [question.id, question.options, responses]);
+
+  return (
+    <div className="chart-wrap">
+      <div className="chart-header">
+        <div className="chart-title">{question.text}</div>
+        <div className="chart-meta">Multi choice · {responses.length} responses</div>
+      </div>
+      <div className="chart-body">
+        <div className="multi-chart">
+          {data.map((item, i) => (
+            <div key={item.name} className="multi-row">
+              <div className="multi-label">{item.name}</div>
+              <div className="multi-bar-wrap">
+                <div
+                  className="multi-bar"
+                  style={{
+                    width: `${item.percentage}%`,
+                    background: CHART_COLORS[i % CHART_COLORS.length]
+                  }}
+                />
+              </div>
+              <div className="multi-pct">{item.count} ({item.percentage}%)</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Text Responses List ───────────────────────────────────────────────────────
+function TextResponses({ question, responses }) {
+  const answers = useMemo(() => {
+    return responses
+      .map(r => r.answers?.[question.id])
+      .filter(a => a && String(a).trim());
+  }, [question.id, responses]);
+
+  return (
+    <div className="chart-wrap">
+      <div className="chart-header">
+        <div className="chart-title">{question.text}</div>
+        <div className="chart-meta">Text · {answers.length} responses</div>
+      </div>
+      <div className="text-responses">
+        {answers.length === 0 ? (
+          <div className="text-empty">No text responses yet</div>
+        ) : (
+          answers.map((answer, i) => (
+            <div key={i} className="text-item">
+              <div className="text-num">{i + 1}</div>
+              <div className="text-content">{answer}</div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function SurveyResponses({ survey, onResponseCountUpdate }) {
   const { profile } = useAuth();
   const [questions, setQuestions] = useState([]);
@@ -355,6 +892,7 @@ export default function SurveyResponses({ survey, onResponseCountUpdate }) {
   const [seedShown, setSeedShown] = useState(true);
   const [loading, setLoading] = useState(true);
   const bottomRef = useRef(null);
+  const [viewMode, setViewMode] = useState('dashboard');
 
   useEffect(() => { loadData(); }, [survey.id]);
 
@@ -511,56 +1049,92 @@ Analyse this data to answer the founder's questions. Be concise, specific, and i
                 </div>
               </div>
             ) : (
-              <div className="sr-table-wrap">
-                <table className="sr-table">
-                  <thead className="sr-thead">
-                    <tr>
-                      <th>#</th>
-                      <th>Date</th>
-                      {questions.map((q, i) => (
-                        <th key={q.id || i}>Q{i + 1}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="sr-tbody">
-                    {responses.map((r, ri) => (
-                      <>
-                        <tr
-                          key={r.id}
-                          className={expandedRow === r.id ? "selected" : ""}
-                          onClick={() => setExpandedRow(expandedRow === r.id ? null : r.id)}
-                        >
-                          <td className="sr-td-num">{responses.length - ri}</td>
-                          <td>{new Date(r.created_at).toLocaleDateString()}</td>
-                          {questions.map((q) => (
-                            <td key={q.id} title={formatCell(r.answers?.[q.id])}>
-                              {formatCell(r.answers?.[q.id])}
-                            </td>
+              <>
+                <div className="view-toggle">
+                  <button
+                    className={`view-toggle-btn ${viewMode === 'dashboard' ? 'active' : ''}`}
+                    onClick={() => setViewMode('dashboard')}
+                  >
+                    📊 Dashboard
+                  </button>
+                  <button
+                    className={`view-toggle-btn ${viewMode === 'raw' ? 'active' : ''}`}
+                    onClick={() => setViewMode('raw')}
+                  >
+                    📋 Raw data
+                  </button>
+                </div>
+
+                {viewMode === 'dashboard' ? (
+                  <div className="charts-dashboard">
+                    {questions.map(q => {
+                      if (q.type === 'rating') {
+                        return <RatingChart key={q.id} question={q} responses={responses} />;
+                      }
+                      if (q.type === 'single_choice') {
+                        return <SingleChoiceChart key={q.id} question={q} responses={responses} />;
+                      }
+                      if (q.type === 'multi_choice') {
+                        return <MultiChoiceChart key={q.id} question={q} responses={responses} />;
+                      }
+                      if (q.type === 'text') {
+                        return <TextResponses key={q.id} question={q} responses={responses} />;
+                      }
+                      return null;
+                    })}
+                  </div>
+                ) : (
+                  <div className="sr-table-wrap">
+                    <table className="sr-table">
+                      <thead className="sr-thead">
+                        <tr>
+                          <th>#</th>
+                          <th>Date</th>
+                          {questions.map((q, i) => (
+                            <th key={q.id || i}>Q{i + 1}</th>
                           ))}
                         </tr>
+                      </thead>
+                      <tbody className="sr-tbody">
+                        {responses.map((r, ri) => (
+                          <>
+                            <tr
+                              key={r.id}
+                              className={expandedRow === r.id ? "selected" : ""}
+                              onClick={() => setExpandedRow(expandedRow === r.id ? null : r.id)}
+                            >
+                              <td className="sr-td-num">{responses.length - ri}</td>
+                              <td>{new Date(r.created_at).toLocaleDateString()}</td>
+                              {questions.map((q) => (
+                                <td key={q.id} title={formatCell(r.answers?.[q.id])}>
+                                  {formatCell(r.answers?.[q.id])}
+                                </td>
+                              ))}
+                            </tr>
 
-                        {/* Expanded full answers */}
-                        {expandedRow === r.id && (
-                          <tr key={`${r.id}-expanded`} className="sr-expanded-row">
-                            <td colSpan={questions.length + 2}>
-                              <div className="sr-expanded-content">
-                                {questions.map((q) => (
-                                  <div key={q.id} className="sr-answer-item">
-                                    <div className="sr-answer-q">{q.text}</div>
-                                    <div className="sr-answer-a">
-                                      {formatCell(r.answers?.[q.id])}
-                                    </div>
+                            {expandedRow === r.id && (
+                              <tr key={`${r.id}-expanded`} className="sr-expanded-row">
+                                <td colSpan={questions.length + 2}>
+                                  <div className="sr-expanded-content">
+                                    {questions.map((q) => (
+                                      <div key={q.id} className="sr-answer-item">
+                                        <div className="sr-answer-q">{q.text}</div>
+                                        <div className="sr-answer-a">
+                                          {formatCell(r.answers?.[q.id])}
+                                        </div>
+                                      </div>
+                                    ))}
                                   </div>
-                                ))}
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                                </td>
+                              </tr>
+                            )}
+                          </>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
             )}
           </div>
 

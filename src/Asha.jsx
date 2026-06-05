@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { supabase } from "./lib/supabase";
@@ -594,6 +594,202 @@ const STYLES = `
     .input-hint { display: none; }
     .empty-greeting { font-size: 1.5rem; }
   }
+
+    /* ── Survey Preview Card ── */
+  .survey-preview-card {
+    background: rgba(124,58,237,0.06);
+    border: 1px solid rgba(124,58,237,0.2);
+    border-radius: 14px;
+    padding: 20px;
+    max-width: 520px;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .survey-preview-header {
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(124,58,237,0.1);
+  }
+
+  .survey-preview-badge {
+    display: inline-flex;
+    padding: 3px 10px;
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 100px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #a78bfa;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .survey-preview-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+
+  [data-theme="light"] .survey-preview-title { color: rgba(0,0,0,0.85); }
+
+  .survey-preview-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.5;
+  }
+
+  [data-theme="light"] .survey-preview-desc { color: rgba(0,0,0,0.45); }
+
+  .survey-preview-questions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .survey-preview-q {
+    display: flex;
+    gap: 10px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.04);
+  }
+
+  [data-theme="light"] .survey-preview-q {
+    background: #f8f8fc;
+    border-color: rgba(0,0,0,0.05);
+  }
+
+  .survey-preview-q-num {
+    font-size: 10px;
+    font-weight: 800;
+    color: rgba(124,58,237,0.5);
+    min-width: 24px;
+    margin-top: 2px;
+  }
+
+  .survey-preview-q-body {
+    flex: 1;
+  }
+
+  .survey-preview-q-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
+
+  [data-theme="light"] .survey-preview-q-text { color: rgba(0,0,0,0.7); }
+
+  .survey-preview-q-type {
+    font-size: 9px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  [data-theme="light"] .survey-preview-q-type { color: rgba(0,0,0,0.3); }
+
+  .survey-preview-q-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .survey-preview-opt {
+    font-size: 10px;
+    padding: 3px 8px;
+    background: rgba(124,58,237,0.08);
+    border: 1px solid rgba(124,58,237,0.15);
+    border-radius: 100px;
+    color: #a78bfa;
+    font-weight: 500;
+  }
+
+  .survey-preview-rating {
+    display: flex;
+    gap: 6px;
+  }
+
+  .survey-preview-rating-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid rgba(124,58,237,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.3);
+  }
+
+  [data-theme="light"] .survey-preview-rating-dot { color: rgba(0,0,0,0.3); }
+
+  .survey-preview-actions {
+    display: flex;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(124,58,237,0.1);
+  }
+
+  .survey-preview-edit {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  [data-theme="light"] .survey-preview-edit {
+    border-color: rgba(0,0,0,0.1);
+    color: rgba(0,0,0,0.5);
+  }
+
+  .survey-preview-edit:hover {
+    border-color: rgba(124,58,237,0.3);
+    color: #a78bfa;
+    background: rgba(124,58,237,0.05);
+  }
+
+  .survey-preview-create {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: #7c3aed;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(124,58,237,0.3);
+  }
+
+  .survey-preview-create:hover:not(:disabled) {
+    background: #6d28d9;
+    transform: translateY(-1px);
+  }
+
+  .survey-preview-create:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
 `;
 
 const SUGGESTIONS = [
@@ -676,11 +872,87 @@ function CopyButton({ text }) {
   );
 }
 
+// ─── Survey Preview Card (shown in chat when Asha drafts a survey) ───────────
+function SurveyPreviewCard({ surveyData, onCreate, onEdit }) {
+  const [creating, setCreating] = useState(false);
+
+  const handleCreate = async () => {
+    setCreating(true);
+    await onCreate(surveyData);
+    setCreating(false);
+  };
+
+  return (
+    <div className="survey-preview-card">
+      <div className="survey-preview-header">
+        <div className="survey-preview-badge">📋 Survey Draft</div>
+        <div className="survey-preview-title">{surveyData.title}</div>
+        <div className="survey-preview-desc">{surveyData.description}</div>
+      </div>
+
+      <div className="survey-preview-questions">
+        {surveyData.questions.map((q, i) => (
+          <div key={q.id || i} className="survey-preview-q">
+            <div className="survey-preview-q-num">Q{i + 1}</div>
+            <div className="survey-preview-q-body">
+              <div className="survey-preview-q-text">{q.text}</div>
+              <div className="survey-preview-q-type">{q.type.replace('_', ' ')}</div>
+              {q.options && (
+                <div className="survey-preview-q-options">
+                  {q.options.map((opt, oi) => (
+                    <span key={oi} className="survey-preview-opt">{opt}</span>
+                  ))}
+                </div>
+              )}
+              {q.type === 'rating' && (
+                <div className="survey-preview-rating">
+                  {[1, 2, 3, 4, 5].map(n => (
+                    <span key={n} className="survey-preview-rating-dot">{n}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="survey-preview-actions">
+        <button className="survey-preview-edit" onClick={onEdit}>
+          ✏️ Edit first
+        </button>
+        <button
+          className="survey-preview-create"
+          onClick={handleCreate}
+          disabled={creating}
+        >
+          {creating ? "Creating…" : "✓ Create survey"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Message row ──────────────────────────────────────────────────────────────
-function MessageRow({ message, index, onResend, onEdit }) {
+function MessageRow({ message, index, onResend, onEdit, onCreateSurvey, onEditSurvey }) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(message.content);
   const isUser = message.role === "user";
+
+  // Survey preview card
+  if (message.content === '__SURVEY_PREVIEW__' && message.surveyData) {
+    return (
+      <div className="msg asha">
+        <span className="msg-label">Asha</span>
+        <div className="asha-msg-plain">
+          <SurveyPreviewCard
+            surveyData={message.surveyData}
+            onCreate={onCreateSurvey}
+            onEdit={() => onEditSurvey(message.surveyData)}
+          />
+        </div>
+      </div>
+    );
+  }
 
   const handleEditSend = () => {
     if (!editText.trim()) return;
@@ -763,6 +1035,62 @@ export default function Asha() {
   const pickerRef = useRef(null);
 
   const greeting = useGreeting(profile?.founder_name);
+  const navigate = useNavigate();
+
+  const handleCreateSurvey = async (surveyData) => {
+    try {
+      const { data: saved, error } = await supabase
+        .from("surveys")
+        .insert({
+          user_id: user.id,
+          title: surveyData.title,
+          description: surveyData.description,
+          questions: surveyData.questions,
+          is_active: false,
+        })
+        .select("id, title, is_active, created_at")
+        .single();
+
+      if (error) throw error;
+
+      // Add a confirmation message
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: `✅ Created **"${saved.title}"**. You can find it in your Surveys tab.`
+      }]);
+
+      // Save to conversation
+      if (activeConvoId) {
+        await saveMessage(activeConvoId, 'assistant', `Created survey: ${saved.title}`);
+      }
+
+      // Navigate to surveys with the new one selected
+      navigate('/surveys', {
+        state: {
+          newSurveyId: saved.id,
+          highlightSurvey: true
+        }
+      });
+
+      return saved;
+    } catch (err) {
+      console.error("Survey creation error:", err);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: '❌ Something went wrong creating the survey. Please try again.'
+      }]);
+      return null;
+    }
+  };
+
+  const handleEditSurvey = (surveyData) => {
+    navigate('/surveys', {
+      state: {
+        prefillData: surveyData,
+        openForm: true
+      }
+    });
+  };
 
   // Preload surveys on mount for instant picker
   useEffect(() => {
@@ -878,6 +1206,32 @@ export default function Asha() {
     return ctx;
   };
 
+  const buildToolPrompt = () => {
+    return `\n\nYou have access to a tool called "create_survey". When the founder wants to create a survey, validate an idea, or collect feedback, you SHOULD use this tool.
+  
+  To use it, respond with a JSON block like this (and NOTHING else):
+  
+  \`\`\`json
+  {
+    "tool": "create_survey",
+    "title": "Short survey title (max 40 chars)",
+    "description": "One sentence shown to respondents",
+    "questions": [
+      { "id": "q1", "type": "text", "text": "Question here" },
+      { "id": "q2", "type": "single_choice", "text": "Question here", "options": ["Option A", "Option B"] },
+      { "id": "q3", "type": "rating", "text": "Rate this (1=low, 5=high)" },
+      { "id": "q4", "type": "multi_choice", "text": "Which apply?", "options": ["A", "B", "C"] }
+    ]
+  }
+  \`\`\`
+  
+  Generate 6-8 questions. Mix types. Focus on validating the founder's specific idea or problem. Make questions specific to their business context.
+  
+  If you use the tool, ONLY output the JSON block. Do not add conversational text before or after.
+  
+  If the founder is NOT asking for a survey, respond normally without using the tool.`;
+  };
+
   const openPicker = async () => {
     if (pickerOpen) { setPickerOpen(false); return; }
     // Surveys already preloaded, just open
@@ -948,9 +1302,45 @@ export default function Asha() {
       }
     }
 
+    // Check if the response is a tool call
+    const toolCall = parseToolCall(fullContent);
+    if (toolCall) {
+      setStreaming(false);
+      // Don't save the raw JSON to messages — render the preview card instead
+      setMessages(prev => [...updated, {
+        role: 'assistant',
+        content: '__SURVEY_PREVIEW__',
+        surveyData: toolCall.data
+      }]);
+      await saveMessage(convoId, "assistant", `[Survey draft: ${toolCall.data.title}]`);
+      return fullContent;
+    }
+
     setStreaming(false);
     await saveMessage(convoId, "assistant", fullContent);
     return fullContent;
+  };
+
+  const parseToolCall = (content) => {
+    const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+    if (!jsonMatch) return null;
+
+    try {
+      const parsed = JSON.parse(jsonMatch[1]);
+      if (parsed.tool === 'create_survey') {
+        return {
+          type: 'create_survey',
+          data: {
+            title: parsed.title,
+            description: parsed.description,
+            questions: parsed.questions
+          }
+        };
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
   };
 
   const sendMessage = async (text) => {
@@ -980,7 +1370,8 @@ export default function Asha() {
 
       await saveMessage(convoId, "user", trimmed);
 
-      const systemPrompt = `You are Asha, an AI assistant made by Mexuri. You help African founders with business research, market analysis, idea validation, and strategy. Be sharp, direct, and insightful.${surveyCtx}${businessCtx}`;
+      const toolPrompt = buildToolPrompt();
+      const systemPrompt = `You are Asha, an AI assistant made by Mexuri. You help African founders with business research, market analysis, idea validation, and strategy. Be sharp, direct, and insightful.${surveyCtx}${businessCtx}${toolPrompt}`;
 
       if (import.meta.env.DEV) {
         const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -1037,6 +1428,17 @@ export default function Asha() {
         const reply = data.reply || "Something went wrong.";
         await saveMessage(convoId, "assistant", reply);
         setMessages([...updated, { role: "assistant", content: reply }]);
+        const toolCall = parseToolCall(reply);
+        if (toolCall) {
+          setMessages([...updated, {
+            role: 'assistant',
+            content: '__SURVEY_PREVIEW__',
+            surveyData: toolCall.data
+          }]);
+          await saveMessage(convoId, "assistant", `[Survey draft: ${toolCall.data.title}]`);
+          setLoading(false);
+          return;
+        }
         setLoading(false);
       }
 
@@ -1091,6 +1493,8 @@ export default function Asha() {
                     setMessages(prev => prev.slice(0, index));
                     sendMessage(trimmed);
                   }}
+                  onCreateSurvey={handleCreateSurvey}
+                  onEditSurvey={handleEditSurvey}
                 />
               ))}
               {(loading || streaming) && (

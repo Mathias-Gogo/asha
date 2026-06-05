@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
+import { useLocation } from "react-router-dom";
+
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
@@ -482,301 +484,317 @@ const STYLES = `
 `;
 
 const PLANS = [
-    {
-        id: "free",
-        name: "Free",
-        price: "₦0",
-        features: ["20 chats / day", "No memory", "No surveys", "Basic context"],
-    },
-    {
-        id: "pro",
-        name: "Pro",
-        price: "₦9,500",
-        features: ["200 chats / day", "Memory", "5 surveys / mo", "Medium RAG"],
-    },
-    {
-        id: "growth",
-        name: "Growth",
-        price: "₦25,000",
-        features: ["2,000 chats / day", "Full memory", "Unlimited surveys", "Deep RAG"],
-    },
+  {
+    id: "free",
+    name: "Free",
+    price: "₦0",
+    features: ["20 chats / day", "No memory", "No surveys", "Basic context"],
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    price: "₦9,500",
+    features: ["200 chats / day", "Memory", "5 surveys / mo", "Medium RAG"],
+  },
+  {
+    id: "growth",
+    name: "Growth",
+    price: "₦25,000",
+    features: ["2,000 chats / day", "Full memory", "Unlimited surveys", "Deep RAG"],
+  },
 ];
 
 export default function Settings() {
-    const { user, profile, fetchProfile, updateTheme, theme } = useAuth();
-    const navigate = useNavigate();
+  const { user, profile, fetchProfile, updateTheme, theme } = useAuth();
+  const navigate = useNavigate();
 
-    const [founderName, setFounderName] = useState("");
-    const [businessName, setBusinessName] = useState("");
-    const [sector, setSector] = useState("");
-    const [stage, setStage] = useState("");
-    const [saving, setSaving] = useState(false);
-    const [saved, setSaved] = useState(false);
+  const [founderName, setFounderName] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [sector, setSector] = useState("");
+  const [stage, setStage] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
-    const [ragChunks, setRagChunks] = useState([]);
-    const [newContext, setNewContext] = useState("");
-    const [addingRag, setAddingRag] = useState(false);
+  const [ragChunks, setRagChunks] = useState([]);
+  const [newContext, setNewContext] = useState("");
+  const [addingRag, setAddingRag] = useState(false);
+  const location = useLocation();
 
-    // Populate fields from profile
-    useEffect(() => {
-        if (profile) {
-            setFounderName(profile.founder_name || "");
-            setBusinessName(profile.business_name || "");
-            setSector(profile.business_sector || "");
-            setStage(profile.business_stage || "");
-        }
-    }, [profile]);
+  // Handle navigation from Asha chat
+  useEffect(() => {
+    if (location.state?.newSurveyId) {
+      setActiveSurveyId(location.state.newSurveyId);
+      setActiveTab("Form");
+      // Clear the state so it doesn't re-trigger
+      window.history.replaceState({}, document.title);
+    }
+    if (location.state?.prefillData) {
+      // Need to create a temporary survey object or navigate to existing
+      // For now, just open Form tab — SurveyForm handles the prefill
+      setActiveTab("Form");
+    }
+  }, [location.state]);
 
-    // Load RAG chunks
-    useEffect(() => {
-        if (user?.id) loadRagChunks();
-    }, [user?.id]);
+  // Populate fields from profile
+  useEffect(() => {
+    if (profile) {
+      setFounderName(profile.founder_name || "");
+      setBusinessName(profile.business_name || "");
+      setSector(profile.business_sector || "");
+      setStage(profile.business_stage || "");
+    }
+  }, [profile]);
 
-    const loadRagChunks = async () => {
-        const { data } = await supabase
-            .from("business_data")
-            .select("id, content, source, created_at")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: true });
-        if (data) setRagChunks(data);
-    };
+  // Load RAG chunks
+  useEffect(() => {
+    if (user?.id) loadRagChunks();
+  }, [user?.id]);
 
-    const saveProfile = async () => {
-        setSaving(true);
-        setSaved(false);
-        const { error } = await supabase
-            .from("profiles")
-            .update({
-                founder_name: founderName || null,
-                business_name: businessName || null,
-                business_sector: sector || null,
-                business_stage: stage || null,
-            })
-            .eq("id", user.id);
+  const loadRagChunks = async () => {
+    const { data } = await supabase
+      .from("business_data")
+      .select("id, content, source, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true });
+    if (data) setRagChunks(data);
+  };
 
-        if (!error) {
-            await fetchProfile(user.id);
-            setSaved(true);
-            setTimeout(() => setSaved(false), 3000);
-        }
-        setSaving(false);
-    };
+  const saveProfile = async () => {
+    setSaving(true);
+    setSaved(false);
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        founder_name: founderName || null,
+        business_name: businessName || null,
+        business_sector: sector || null,
+        business_stage: stage || null,
+      })
+      .eq("id", user.id);
 
-    const addContext = async () => {
-        if (!newContext.trim()) return;
-        setAddingRag(true);
-        const { error } = await supabase
-            .from("business_data")
-            .insert({
-                user_id: user.id,
-                content: newContext.trim(),
-                source: "addition",
-                parent_id: null,
-            });
+    if (!error) {
+      await fetchProfile(user.id);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    }
+    setSaving(false);
+  };
 
-        if (!error) {
-            setNewContext("");
-            await loadRagChunks();
-        }
-        setAddingRag(false);
-    };
+  const addContext = async () => {
+    if (!newContext.trim()) return;
+    setAddingRag(true);
+    const { error } = await supabase
+      .from("business_data")
+      .insert({
+        user_id: user.id,
+        content: newContext.trim(),
+        source: "addition",
+        parent_id: null,
+      });
 
-    const handleSignOut = async () => {
-        await supabase.auth.signOut();
-        navigate("/login", { replace: true });
-    };
+    if (!error) {
+      setNewContext("");
+      await loadRagChunks();
+    }
+    setAddingRag(false);
+  };
 
-    const currentPlan = profile?.plan || "free";
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/login", { replace: true });
+  };
 
-    return (
-        <>
-            <style>{STYLES}</style>
-            <div className="settings-wrap">
-                <div className="settings-inner">
+  const currentPlan = profile?.plan || "free";
 
-                    <div className="settings-page-title">Settings</div>
-                    <div className="settings-page-sub">
-                        Manage your profile, business data, and plan.
-                    </div>
+  return (
+    <>
+      <style>{STYLES}</style>
+      <div className="settings-wrap">
+        <div className="settings-inner">
 
-                    {/* ── Profile ── */}
-                    <div className="settings-section">
-                        <div className="settings-section-header">
-                            <div className="settings-section-title">Profile</div>
-                        </div>
-                        <div className="settings-card">
-                            <div className="settings-field">
-                                <div className="settings-field-label">Founder name</div>
-                                <input
-                                    className="settings-input"
-                                    value={founderName}
-                                    onChange={e => setFounderName(e.target.value)}
-                                    placeholder="Your full name"
-                                />
-                            </div>
-                            <div className="settings-field">
-                                <div className="settings-field-label">Business name</div>
-                                <input
-                                    className="settings-input"
-                                    value={businessName}
-                                    onChange={e => setBusinessName(e.target.value)}
-                                    placeholder="Your business name"
-                                />
-                            </div>
-                            <div className="settings-field">
-                                <div className="settings-field-label">Sector</div>
-                                <input
-                                    className="settings-input"
-                                    value={sector}
-                                    onChange={e => setSector(e.target.value)}
-                                    placeholder="e.g. Fintech, Edtech, Logistics"
-                                />
-                            </div>
-                            <div className="settings-field">
-                                <div className="settings-field-label">Stage</div>
-                                <input
-                                    className="settings-input"
-                                    value={stage}
-                                    onChange={e => setStage(e.target.value)}
-                                    placeholder="Idea / MVP / Growth / Scaling"
-                                />
-                            </div>
-                            <div className="settings-save-row">
-                                {saved && <span className="settings-saved-msg">✓ Saved</span>}
-                                <button
-                                    className="settings-save-btn"
-                                    onClick={saveProfile}
-                                    disabled={saving}
-                                >
-                                    {saving ? "Saving…" : "Save changes"}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+          <div className="settings-page-title">Settings</div>
+          <div className="settings-page-sub">
+            Manage your profile, business data, and plan.
+          </div>
 
-                    {/* ── Business Data ── */}
-                    <div className="settings-section">
-                        <div className="settings-section-header">
-                            <div className="settings-section-title">Business data</div>
-                        </div>
-                        <div className="settings-card">
-                            <div className="rag-chunks">
-                                {ragChunks.length === 0 ? (
-                                    <div className="rag-empty">No business data yet. Add context below.</div>
-                                ) : (
-                                    ragChunks.map(chunk => (
-                                        <div key={chunk.id} className="rag-chunk">
-                                            <div className="rag-chunk-source">{chunk.source}</div>
-                                            {chunk.content}
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                            <div className="rag-add-wrap">
-                                <div className="rag-add-label">Add more context</div>
-                                <textarea
-                                    className="settings-input"
-                                    placeholder="Add anything Asha should know — a pivot, new product, new market…"
-                                    value={newContext}
-                                    onChange={e => setNewContext(e.target.value)}
-                                />
-                                <button
-                                    className="rag-add-btn"
-                                    onClick={addContext}
-                                    disabled={addingRag || !newContext.trim()}
-                                >
-                                    {addingRag ? "Adding…" : "Add context →"}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* ── Appearance ── */}
-                    <div className="settings-section">
-                        <div className="settings-section-header">
-                            <div className="settings-section-title">Appearance</div>
-                        </div>
-                        <div className="settings-card">
-                            <div className="appearance-row">
-                                <div>
-                                    <div className="appearance-label">Theme</div>
-                                    <div className="appearance-sub">
-                                        Applied instantly across the whole app
-                                    </div>
-                                </div>
-                                <div className="toggle-wrap">
-                                    {["dark", "light"].map(t => (
-                                        <button
-                                            key={t}
-                                            className={`toggle-opt ${theme === t ? "active" : ""}`}
-                                            onClick={() => updateTheme(t)}
-                                        >
-                                            {t === "dark" ? "🌙 Dark" : "☀️ Light"}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* ── Plan ── */}
-                    <div className="settings-section">
-                        <div className="settings-section-header">
-                            <div className="settings-section-title">Plan</div>
-                        </div>
-                        <div className="plan-grid">
-                            {PLANS.map(plan => (
-                                <div
-                                    key={plan.id}
-                                    className={`plan-card ${currentPlan === plan.id ? "current" : ""}`}
-                                >
-                                    {currentPlan === plan.id && (
-                                        <div className="plan-current-badge">Current plan</div>
-                                    )}
-                                    <div className="plan-name">{plan.name}</div>
-                                    <div className="plan-price">
-                                        {plan.price}<sub>/mo</sub>
-                                    </div>
-                                    <div className="plan-divider" />
-                                    <div className="plan-features">
-                                        {plan.features.map(f => (
-                                            <div key={f} className="plan-feature">
-                                                <div className="plan-feat-dot" />
-                                                {f}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <button
-                                        className={`plan-action-btn ${currentPlan === plan.id ? "current-btn" : ""}`}
-                                        disabled={currentPlan === plan.id}
-                                    >
-                                        {currentPlan === plan.id ? "Current plan" : "Upgrade"}
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* ── Account ── */}
-                    <div className="settings-section">
-                        <div className="settings-section-header">
-                            <div className="settings-section-title">Account</div>
-                        </div>
-                        <div className="danger-card">
-                            <div>
-                                <div className="danger-label">Sign out</div>
-                                <div className="danger-sub">
-                                    You'll need to sign back in to access Asha.
-                                </div>
-                            </div>
-                            <button className="danger-btn" onClick={handleSignOut}>
-                                Sign out
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
+          {/* ── Profile ── */}
+          <div className="settings-section">
+            <div className="settings-section-header">
+              <div className="settings-section-title">Profile</div>
             </div>
-        </>
-    );
+            <div className="settings-card">
+              <div className="settings-field">
+                <div className="settings-field-label">Founder name</div>
+                <input
+                  className="settings-input"
+                  value={founderName}
+                  onChange={e => setFounderName(e.target.value)}
+                  placeholder="Your full name"
+                />
+              </div>
+              <div className="settings-field">
+                <div className="settings-field-label">Business name</div>
+                <input
+                  className="settings-input"
+                  value={businessName}
+                  onChange={e => setBusinessName(e.target.value)}
+                  placeholder="Your business name"
+                />
+              </div>
+              <div className="settings-field">
+                <div className="settings-field-label">Sector</div>
+                <input
+                  className="settings-input"
+                  value={sector}
+                  onChange={e => setSector(e.target.value)}
+                  placeholder="e.g. Fintech, Edtech, Logistics"
+                />
+              </div>
+              <div className="settings-field">
+                <div className="settings-field-label">Stage</div>
+                <input
+                  className="settings-input"
+                  value={stage}
+                  onChange={e => setStage(e.target.value)}
+                  placeholder="Idea / MVP / Growth / Scaling"
+                />
+              </div>
+              <div className="settings-save-row">
+                {saved && <span className="settings-saved-msg">✓ Saved</span>}
+                <button
+                  className="settings-save-btn"
+                  onClick={saveProfile}
+                  disabled={saving}
+                >
+                  {saving ? "Saving…" : "Save changes"}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Business Data ── */}
+          <div className="settings-section">
+            <div className="settings-section-header">
+              <div className="settings-section-title">Business data</div>
+            </div>
+            <div className="settings-card">
+              <div className="rag-chunks">
+                {ragChunks.length === 0 ? (
+                  <div className="rag-empty">No business data yet. Add context below.</div>
+                ) : (
+                  ragChunks.map(chunk => (
+                    <div key={chunk.id} className="rag-chunk">
+                      <div className="rag-chunk-source">{chunk.source}</div>
+                      {chunk.content}
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="rag-add-wrap">
+                <div className="rag-add-label">Add more context</div>
+                <textarea
+                  className="settings-input"
+                  placeholder="Add anything Asha should know — a pivot, new product, new market…"
+                  value={newContext}
+                  onChange={e => setNewContext(e.target.value)}
+                />
+                <button
+                  className="rag-add-btn"
+                  onClick={addContext}
+                  disabled={addingRag || !newContext.trim()}
+                >
+                  {addingRag ? "Adding…" : "Add context →"}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Appearance ── */}
+          <div className="settings-section">
+            <div className="settings-section-header">
+              <div className="settings-section-title">Appearance</div>
+            </div>
+            <div className="settings-card">
+              <div className="appearance-row">
+                <div>
+                  <div className="appearance-label">Theme</div>
+                  <div className="appearance-sub">
+                    Applied instantly across the whole app
+                  </div>
+                </div>
+                <div className="toggle-wrap">
+                  {["dark", "light"].map(t => (
+                    <button
+                      key={t}
+                      className={`toggle-opt ${theme === t ? "active" : ""}`}
+                      onClick={() => updateTheme(t)}
+                    >
+                      {t === "dark" ? "🌙 Dark" : "☀️ Light"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Plan ── */}
+          <div className="settings-section">
+            <div className="settings-section-header">
+              <div className="settings-section-title">Plan</div>
+            </div>
+            <div className="plan-grid">
+              {PLANS.map(plan => (
+                <div
+                  key={plan.id}
+                  className={`plan-card ${currentPlan === plan.id ? "current" : ""}`}
+                >
+                  {currentPlan === plan.id && (
+                    <div className="plan-current-badge">Current plan</div>
+                  )}
+                  <div className="plan-name">{plan.name}</div>
+                  <div className="plan-price">
+                    {plan.price}<sub>/mo</sub>
+                  </div>
+                  <div className="plan-divider" />
+                  <div className="plan-features">
+                    {plan.features.map(f => (
+                      <div key={f} className="plan-feature">
+                        <div className="plan-feat-dot" />
+                        {f}
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    className={`plan-action-btn ${currentPlan === plan.id ? "current-btn" : ""}`}
+                    disabled={currentPlan === plan.id}
+                  >
+                    {currentPlan === plan.id ? "Current plan" : "Upgrade"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Account ── */}
+          <div className="settings-section">
+            <div className="settings-section-header">
+              <div className="settings-section-title">Account</div>
+            </div>
+            <div className="danger-card">
+              <div>
+                <div className="danger-label">Sign out</div>
+                <div className="danger-sub">
+                  You'll need to sign back in to access Asha.
+                </div>
+              </div>
+              <button className="danger-btn" onClick={handleSignOut}>
+                Sign out
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </>
+  );
 }
