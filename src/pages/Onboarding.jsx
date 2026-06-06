@@ -5,55 +5,55 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 
 const PLANS = [
-    {
-        id: "free",
-        name: "Free",
-        price: "₦0",
-        period: "/mo",
-        features: ["20 chats / day", "No memory", "No surveys", "Basic context"],
-    },
-    {
-        id: "pro",
-        name: "Pro",
-        price: "₦5,600",
-        period: "/mo",
-        featured: true,
-        features: ["200 chats / day", "Memory", "5 surveys / mo", "Medium RAG"],
-    },
-    {
-        id: "growth",
-        name: "Growth",
-        price: "₦25,000",
-        period: "/mo",
-        features: ["2000 chats / day", "Full memory", "Unlimited surveys", "Deep RAG"],
-    },
+  {
+    id: "free",
+    name: "Free",
+    price: "₦0",
+    period: "/mo",
+    features: ["20 chats / day", "No memory", "No surveys", "Basic context"],
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    price: "₦5,600",
+    period: "/mo",
+    featured: true,
+    features: ["200 chats / day", "Memory", "5 surveys / mo", "Medium RAG"],
+  },
+  {
+    id: "growth",
+    name: "Growth",
+    price: "₦25,000",
+    period: "/mo",
+    features: ["2000 chats / day", "Full memory", "Unlimited surveys", "Deep RAG"],
+  },
 ];
 
 const QUESTIONS = {
-    free: [
-        { id: "founder_name", label: "01 — Identity", question: "What's your name?", type: "text", placeholder: "e.g. Mathias Gogo" },
-        { id: "business_name", label: "02 — Your venture", question: "What's your business called?", type: "text", placeholder: "e.g. Mexuri" },
-        { id: "business_desc", label: "03 — The vision", question: "What does your business do?", type: "textarea", placeholder: "Describe your business in a few sentences..." },
-        { id: "sector_stage", label: "04 — Context", question: "What sector are you in, and what stage is your business?", type: "dual", placeholder1: "Sector — e.g. Fintech, Edtech, Logistics", placeholder2: "Stage — Idea / MVP / Growth / Scaling" },
-    ],
-    pro: [
-        { id: "founder_name", label: "01 — Identity", question: "What's your name?", type: "text", placeholder: "e.g. Mathias Gogo" },
-        { id: "business_name", label: "02 — Your venture", question: "What's your business called?", type: "text", placeholder: "e.g. Mexuri" },
-        { id: "business_desc", label: "03 — The vision", question: "What does your business do?", type: "textarea", placeholder: "Describe your business in a few sentences..." },
-        { id: "sector_stage", label: "04 — Context", question: "What sector are you in, and what stage is your business?", type: "dual", placeholder1: "Sector — e.g. Fintech, Edtech, Logistics", placeholder2: "Stage — Idea / MVP / Growth / Scaling" },
-        { id: "target_customer", label: "05 — Your people", question: "Who is your target customer?", type: "textarea", placeholder: "Describe who you're building for..." },
-        { id: "problem", label: "06 — The problem", question: "What problem are you solving, and for who?", type: "textarea", placeholder: "Be as specific as possible..." },
-    ],
-    growth: [
-        { id: "founder_name", label: "01 — Identity", question: "What's your name?", type: "text", placeholder: "e.g. Mathias Gogo" },
-        { id: "business_name", label: "02 — Your venture", question: "What's your business called?", type: "text", placeholder: "e.g. Mexuri" },
-        { id: "business_desc", label: "03 — The vision", question: "What does your business do?", type: "textarea", placeholder: "Describe your business in a few sentences..." },
-        { id: "sector_stage", label: "04 — Context", question: "What sector are you in, and what stage is your business?", type: "dual", placeholder1: "Sector — e.g. Fintech, Edtech, Logistics", placeholder2: "Stage — Idea / MVP / Growth / Scaling" },
-        { id: "target_customer", label: "05 — Your people", question: "Who is your target customer?", type: "textarea", placeholder: "Describe who you're building for..." },
-        { id: "problem", label: "06 — The problem", question: "What problem are you solving, and for who?", type: "textarea", placeholder: "Be as specific as possible..." },
-        { id: "revenue_model", label: "07 — The model", question: "What's your revenue model or monetization plan?", type: "textarea", placeholder: "e.g. SaaS subscription, marketplace commission..." },
-        { id: "competition", label: "08 — The landscape", question: "Who are your main competitors, and what makes you different?", type: "textarea", placeholder: "Name them and explain your edge..." },
-    ],
+  free: [
+    { id: "founder_name", label: "01 — Identity", question: "What's your name?", type: "text", placeholder: "e.g. Mathias Gogo" },
+    { id: "business_name", label: "02 — Your venture", question: "What's your business called?", type: "text", placeholder: "e.g. Mexuri" },
+    { id: "business_desc", label: "03 — The vision", question: "What does your business do?", type: "textarea", placeholder: "Describe your business in a few sentences..." },
+    { id: "sector_stage", label: "04 — Context", question: "What sector are you in, and what stage is your business?", type: "dual", placeholder1: "Sector — e.g. Fintech, Edtech, Logistics", placeholder2: "Stage — Idea / MVP / Growth / Scaling" },
+  ],
+  pro: [
+    { id: "founder_name", label: "01 — Identity", question: "What's your name?", type: "text", placeholder: "e.g. Mathias Gogo" },
+    { id: "business_name", label: "02 — Your venture", question: "What's your business called?", type: "text", placeholder: "e.g. Mexuri" },
+    { id: "business_desc", label: "03 — The vision", question: "What does your business do?", type: "textarea", placeholder: "Describe your business in a few sentences..." },
+    { id: "sector_stage", label: "04 — Context", question: "What sector are you in, and what stage is your business?", type: "dual", placeholder1: "Sector — e.g. Fintech, Edtech, Logistics", placeholder2: "Stage — Idea / MVP / Growth / Scaling" },
+    { id: "target_customer", label: "05 — Your people", question: "Who is your target customer?", type: "textarea", placeholder: "Describe who you're building for..." },
+    { id: "problem", label: "06 — The problem", question: "What problem are you solving, and for who?", type: "textarea", placeholder: "Be as specific as possible..." },
+  ],
+  growth: [
+    { id: "founder_name", label: "01 — Identity", question: "What's your name?", type: "text", placeholder: "e.g. Mathias Gogo" },
+    { id: "business_name", label: "02 — Your venture", question: "What's your business called?", type: "text", placeholder: "e.g. Mexuri" },
+    { id: "business_desc", label: "03 — The vision", question: "What does your business do?", type: "textarea", placeholder: "Describe your business in a few sentences..." },
+    { id: "sector_stage", label: "04 — Context", question: "What sector are you in, and what stage is your business?", type: "dual", placeholder1: "Sector — e.g. Fintech, Edtech, Logistics", placeholder2: "Stage — Idea / MVP / Growth / Scaling" },
+    { id: "target_customer", label: "05 — Your people", question: "Who is your target customer?", type: "textarea", placeholder: "Describe who you're building for..." },
+    { id: "problem", label: "06 — The problem", question: "What problem are you solving, and for who?", type: "textarea", placeholder: "Be as specific as possible..." },
+    { id: "revenue_model", label: "07 — The model", question: "What's your revenue model or monetization plan?", type: "textarea", placeholder: "e.g. SaaS subscription, marketplace commission..." },
+    { id: "competition", label: "08 — The landscape", question: "Who are your main competitors, and what makes you different?", type: "textarea", placeholder: "Name them and explain your edge..." },
+  ],
 };
 
 const STYLES = `
@@ -516,313 +516,286 @@ const STYLES = `
 `;
 
 const slideVariants = {
-    enter: (dir) => ({
-        x: dir > 0 ? "55%" : "-55%",
-        opacity: 0,
-        filter: "blur(4px)",
-    }),
-    center: {
-        x: 0,
-        opacity: 1,
-        filter: "blur(0px)",
-        transition: { duration: 0.38, ease: [0.32, 0.72, 0, 1] },
-    },
-    exit: (dir) => ({
-        x: dir > 0 ? "-55%" : "55%",
-        opacity: 0,
-        filter: "blur(4px)",
-        transition: { duration: 0.3, ease: [0.32, 0.72, 0, 1] },
-    }),
+  enter: (dir) => ({
+    x: dir > 0 ? "55%" : "-55%",
+    opacity: 0,
+    filter: "blur(4px)",
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    filter: "blur(0px)",
+    transition: { duration: 0.38, ease: [0.32, 0.72, 0, 1] },
+  },
+  exit: (dir) => ({
+    x: dir > 0 ? "-55%" : "55%",
+    opacity: 0,
+    filter: "blur(4px)",
+    transition: { duration: 0.3, ease: [0.32, 0.72, 0, 1] },
+  }),
 };
 
 const CheckIcon = () => (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-        <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+    <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
 );
 
 export default function Onboarding() {
-    const navigate = useNavigate();
-    const { user, fetchProfile } = useAuth();
+  const navigate = useNavigate();
+  const { user, fetchProfile } = useAuth();
 
-    const [step, setStep] = useState(0);
-    const [direction, setDirection] = useState(1);
-    const [selectedPlan, setSelectedPlan] = useState("pro");
-    const [answers, setAnswers] = useState({});
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState(null);
+  const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const [answers, setAnswers] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
-    const questions = QUESTIONS[selectedPlan] || QUESTIONS.free;
-    const totalDots = questions.length + 2; // plan step + questions + done
-    const isDone = step === "done";
+  const questions = QUESTIONS.growth;
+  const totalDots = questions.length + 2; // plan step + questions + done
+  const isDone = step === "done";
 
-    const progressPct = step === 0
-        ? 4
-        : step === "done"
-            ? 100
-            : Math.round((step / questions.length) * 92) + 4;
+  const progressPct = step === 0
+    ? 4
+    : step === "done"
+      ? 100
+      : Math.round((step / questions.length) * 92) + 4;
 
-    const currentQ = step > 0 && step <= questions.length ? questions[step - 1] : null;
+  const currentQ = step > 0 && step <= questions.length ? questions[step - 1] : null;
 
-    const canContinue = () => {
-        if (step === 0) return true;
-        if (!currentQ) return true;
-        if (currentQ.type === "dual") {
-            return !!(answers[currentQ.id + "_sector"]?.trim() && answers[currentQ.id + "_stage"]?.trim());
-        }
-        return !!(answers[currentQ.id]?.trim());
-    };
+  const canContinue = () => {
+    if (step === 0) return true;
+    if (!currentQ) return true;
+    if (currentQ.type === "dual") {
+      return !!(answers[currentQ.id + "_sector"]?.trim() && answers[currentQ.id + "_stage"]?.trim());
+    }
+    return !!(answers[currentQ.id]?.trim());
+  };
 
-    const goNext = () => {
-        if (!canContinue()) return;
-        setDirection(1);
-        if (step === questions.length) setStep("done");
-        else setStep(s => s + 1);
-    };
+  const goNext = () => {
+    if (!canContinue()) return;
+    setDirection(1);
+    if (step === questions.length) setStep("done");
+    else setStep(s => s + 1);
+  };
 
-    const goBack = () => {
-        setDirection(-1);
-        if (step === "done") { setStep(questions.length); return; }
-        if (step === 0) return;
-        setStep(s => s - 1);
-    };
+  const goBack = () => {
+    setDirection(-1);
+    if (step === "done") { setStep(questions.length); return; }
+    if (step === 0) return;
+    setStep(s => s - 1);
+  };
 
-    const handleAnswer = (id, value) => {
-        setAnswers(prev => ({ ...prev, [id]: value }));
-    };
+  const handleAnswer = (id, value) => {
+    setAnswers(prev => ({ ...prev, [id]: value }));
+  };
 
-    const handleSave = async () => {
-        setSaving(true);
-        setError(null);
-        try {
-            const { error: profileError } = await supabase
-                .from("profiles")
-                .update({
-                    founder_name: answers.founder_name || null,
-                    business_name: answers.business_name || null,
-                    business_sector: answers.sector_stage_sector || null,
-                    business_stage: answers.sector_stage_stage || null,
-                    plan: selectedPlan,
-                    onboarded: true,
-                })
-                .eq("id", user.id);
+  const handleSave = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          founder_name: answers.founder_name || null,
+          business_name: answers.business_name || null,
+          business_sector: answers.sector_stage_sector || null,
+          business_stage: answers.sector_stage_stage || null,
+          plan: "growth",
+          onboarded: true,
+        })
+        .eq("id", user.id);
 
-            if (profileError) throw profileError;
+      if (profileError) throw profileError;
 
-            const chunks = [];
-            if (answers.founder_name) chunks.push(`Founder name: ${answers.founder_name}`);
-            if (answers.business_name) chunks.push(`Business name: ${answers.business_name}`);
-            if (answers.business_desc) chunks.push(`Business description: ${answers.business_desc}`);
-            if (answers.sector_stage_sector || answers.sector_stage_stage)
-                chunks.push(`Sector: ${answers.sector_stage_sector || ""}. Stage: ${answers.sector_stage_stage || ""}`);
-            if (answers.target_customer) chunks.push(`Target customer: ${answers.target_customer}`);
-            if (answers.problem) chunks.push(`Problem being solved: ${answers.problem}`);
-            if (answers.revenue_model) chunks.push(`Revenue model: ${answers.revenue_model}`);
-            if (answers.competition) chunks.push(`Competitors and differentiation: ${answers.competition}`);
+      const chunks = [];
+      if (answers.founder_name) chunks.push(`Founder name: ${answers.founder_name}`);
+      if (answers.business_name) chunks.push(`Business name: ${answers.business_name}`);
+      if (answers.business_desc) chunks.push(`Business description: ${answers.business_desc}`);
+      if (answers.sector_stage_sector || answers.sector_stage_stage)
+        chunks.push(`Sector: ${answers.sector_stage_sector || ""}. Stage: ${answers.sector_stage_stage || ""}`);
+      if (answers.target_customer) chunks.push(`Target customer: ${answers.target_customer}`);
+      if (answers.problem) chunks.push(`Problem being solved: ${answers.problem}`);
+      if (answers.revenue_model) chunks.push(`Revenue model: ${answers.revenue_model}`);
+      if (answers.competition) chunks.push(`Competitors and differentiation: ${answers.competition}`);
 
-            if (chunks.length > 0) {
-                const { error: dataError } = await supabase
-                    .from("business_data")
-                    .insert(chunks.map(content => ({ user_id: user.id, content, source: "onboarding", parent_id: null })));
-                if (dataError) throw dataError;
-            }
+      if (chunks.length > 0) {
+        const { error: dataError } = await supabase
+          .from("business_data")
+          .insert(chunks.map(content => ({ user_id: user.id, content, source: "onboarding", parent_id: null })));
+        if (dataError) throw dataError;
+      }
 
-            await fetchProfile(user.id);
-            navigate("/", { replace: true });
-        } catch (err) {
-            console.error(err);
-            setError("Something went wrong. Please try again.");
-        } finally {
-            setSaving(false);
-        }
-    };
+      await fetchProfile(user.id);
+      navigate("/", { replace: true });
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
-    // Build dot states
-    const dotStates = Array.from({ length: totalDots }, (_, i) => {
-        const stepNum = i; // 0 = plan, 1..n = questions, n+1 = done
-        const currentNum = isDone ? totalDots - 1 : step;
-        if (stepNum === currentNum) return "active";
-        if (stepNum < currentNum) return "done";
-        return "idle";
-    });
+  // Build dot states
+  const dotStates = Array.from({ length: totalDots }, (_, i) => {
+    const stepNum = i; // 0 = plan, 1..n = questions, n+1 = done
+    const currentNum = isDone ? totalDots - 1 : step;
+    if (stepNum === currentNum) return "active";
+    if (stepNum < currentNum) return "done";
+    return "idle";
+  });
 
-    const stepKey = isDone ? "done" : step;
-    const firstName = answers.founder_name?.split(" ")[0] || "founder";
+  const stepKey = isDone ? "done" : step;
+  const firstName = answers.founder_name?.split(" ")[0] || "founder";
 
-    return (
-        <>
-            <style>{STYLES}</style>
-            <div className="ob-wrap">
-                <div className="ob-bg" />
-                <div className="ob-grid" />
+  return (
+    <>
+      <style>{STYLES}</style>
+      <div className="ob-wrap">
+        <div className="ob-bg" />
+        <div className="ob-grid" />
 
-                {/* Progress */}
-                <div className="ob-progress-wrap">
-                    <div className="ob-progress-bar" style={{ width: `${progressPct}%` }} />
-                </div>
+        {/* Progress */}
+        <div className="ob-progress-wrap">
+          <div className="ob-progress-bar" style={{ width: `${progressPct}%` }} />
+        </div>
 
-                {/* Header */}
-                <div className="ob-header">
-                    <div className="ob-logo">
-                        <div className="ob-logo-mark">A</div>
-                        <div>
-                            <div className="ob-logo-name">Asha</div>
-                            <div className="ob-logo-by">by Mexuri</div>
-                        </div>
-                    </div>
-                    {!isDone && (
-                        <div className="ob-header-right">
-                            {step === 0 ? "Choose plan" : `${step} of ${questions.length}`}
-                        </div>
-                    )}
-                </div>
-
-                {/* Content */}
-                <div className="ob-content">
-
-                    {/* Step dots */}
-                    <div className="ob-step-indicator">
-                        {dotStates.map((state, i) => (
-                            <div key={i} className={`ob-step-dot ${state}`} />
-                        ))}
-                    </div>
-
-                    <AnimatePresence mode="wait" custom={direction}>
-                        <motion.div
-                            key={stepKey}
-                            custom={direction}
-                            variants={slideVariants}
-                            initial="enter"
-                            animate="center"
-                            exit="exit"
-                            style={{ width: "100%", maxWidth: 780 }}
-                        >
-
-                            {/* ── Plan selection ── */}
-                            {step === 0 && (
-                                <div className="ob-card">
-                                    <div className="ob-q-label">Getting started</div>
-                                    <div className="ob-q-text">Choose how you want to use Asha.</div>
-                                    <div className="ob-plans">
-                                        {PLANS.map(plan => (
-                                            <div
-                                                key={plan.id}
-                                                className={`ob-plan-card ${selectedPlan === plan.id ? "selected" : ""}`}
-                                                onClick={() => setSelectedPlan(plan.id)}
-                                            >
-                                                <div className="ob-plan-check"><CheckIcon /></div>
-                                                {plan.featured && <div className="ob-plan-badge">Most popular</div>}
-                                                <div className="ob-plan-name">{plan.name}</div>
-                                                <div className="ob-plan-price">
-                                                    {plan.price}<sub>{plan.period}</sub>
-                                                </div>
-                                                <div className="ob-plan-divider" />
-                                                <div className="ob-plan-feat">
-                                                    {plan.features.map(f => (
-                                                        <div key={f} className="ob-plan-feat-item">
-                                                            <div className="ob-plan-feat-dot" />
-                                                            {f}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="ob-plan-note">You can upgrade or change your plan anytime.</div>
-                                    <div className="ob-nav">
-                                        <div />
-                                        <button className="ob-continue" onClick={goNext}>
-                                            Continue <span style={{ fontSize: 14 }}>→</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* ── Question steps ── */}
-                            {step > 0 && step <= questions.length && currentQ && (
-                                <div className="ob-card">
-                                    <div className="ob-q-label">{currentQ.label}</div>
-                                    <div className="ob-q-text">{currentQ.question}</div>
-
-                                    {currentQ.type === "text" && (
-                                        <input
-                                            className="ob-input"
-                                            type="text"
-                                            placeholder={currentQ.placeholder}
-                                            value={answers[currentQ.id] || ""}
-                                            onChange={e => handleAnswer(currentQ.id, e.target.value)}
-                                            onKeyDown={e => { if (e.key === "Enter") goNext(); }}
-                                            autoFocus
-                                        />
-                                    )}
-
-                                    {currentQ.type === "textarea" && (
-                                        <textarea
-                                            className="ob-input"
-                                            placeholder={currentQ.placeholder}
-                                            value={answers[currentQ.id] || ""}
-                                            onChange={e => handleAnswer(currentQ.id, e.target.value)}
-                                            autoFocus
-                                        />
-                                    )}
-
-                                    {currentQ.type === "dual" && (
-                                        <div className="ob-dual">
-                                            <input
-                                                className="ob-input"
-                                                type="text"
-                                                placeholder={currentQ.placeholder1}
-                                                value={answers[currentQ.id + "_sector"] || ""}
-                                                onChange={e => handleAnswer(currentQ.id + "_sector", e.target.value)}
-                                                autoFocus
-                                            />
-                                            <input
-                                                className="ob-input"
-                                                type="text"
-                                                placeholder={currentQ.placeholder2}
-                                                value={answers[currentQ.id + "_stage"] || ""}
-                                                onChange={e => handleAnswer(currentQ.id + "_stage", e.target.value)}
-                                            />
-                                        </div>
-                                    )}
-
-                                    <div className="ob-nav">
-                                        <button className="ob-back" onClick={goBack}>
-                                            <span style={{ fontSize: 13 }}>←</span> Back
-                                        </button>
-                                        <button className="ob-continue" onClick={goNext} disabled={!canContinue()}>
-                                            {step === questions.length ? "Finish" : "Continue"}
-                                            <span style={{ fontSize: 14 }}>→</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* ── Done ── */}
-                            {isDone && (
-                                <div className="ob-card">
-                                    <div className="ob-done">
-                                        <div className="ob-done-icon">A</div>
-                                        <div className="ob-done-eyebrow">Setup complete</div>
-                                        <div className="ob-done-title">
-                                            You're all set,<br />
-                                            <em>{firstName}.</em>
-                                        </div>
-                                        <div className="ob-done-sub">
-                                            Asha knows your business now. Let's validate ideas, research markets, and build something great.
-                                        </div>
-                                        {error && <div className="ob-error">{error}</div>}
-                                        <button className="ob-done-btn" onClick={handleSave} disabled={saving}>
-                                            {saving ? "Setting up…" : "Enter Asha →"}
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                        </motion.div>
-                    </AnimatePresence>
-                </div>
+        {/* Header */}
+        <div className="ob-header">
+          <div className="ob-logo">
+            <div className="ob-logo-mark">A</div>
+            <div>
+              <div className="ob-logo-name">Asha</div>
+              <div className="ob-logo-by">by Mexuri</div>
             </div>
-        </>
-    );
+          </div>
+          {!isDone && (
+            <div className="ob-header-right">
+              {step === 0 ? "Welcome" : `${step} of ${questions.length}`}
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="ob-content">
+
+          {/* Step dots */}
+          <div className="ob-step-indicator">
+            {dotStates.map((state, i) => (
+              <div key={i} className={`ob-step-dot ${state}`} />
+            ))}
+          </div>
+
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={stepKey}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              style={{ width: "100%", maxWidth: 780 }}
+            >
+
+              {/* ── Plan selection ── */}
+              {step === 0 && (
+                <div className="ob-card">
+                  <div className="ob-q-label">Welcome to Asha</div>
+                  <div className="ob-q-text">Let's set up your workspace.</div>
+                  <div className="ob-nav">
+                    <div />
+                    <button className="ob-continue" onClick={goNext}>
+                      Get started →
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Question steps ── */}
+              {step > 0 && step <= questions.length && currentQ && (
+                <div className="ob-card">
+                  <div className="ob-q-label">{currentQ.label}</div>
+                  <div className="ob-q-text">{currentQ.question}</div>
+
+                  {currentQ.type === "text" && (
+                    <input
+                      className="ob-input"
+                      type="text"
+                      placeholder={currentQ.placeholder}
+                      value={answers[currentQ.id] || ""}
+                      onChange={e => handleAnswer(currentQ.id, e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") goNext(); }}
+                      autoFocus
+                    />
+                  )}
+
+                  {currentQ.type === "textarea" && (
+                    <textarea
+                      className="ob-input"
+                      placeholder={currentQ.placeholder}
+                      value={answers[currentQ.id] || ""}
+                      onChange={e => handleAnswer(currentQ.id, e.target.value)}
+                      autoFocus
+                    />
+                  )}
+
+                  {currentQ.type === "dual" && (
+                    <div className="ob-dual">
+                      <input
+                        className="ob-input"
+                        type="text"
+                        placeholder={currentQ.placeholder1}
+                        value={answers[currentQ.id + "_sector"] || ""}
+                        onChange={e => handleAnswer(currentQ.id + "_sector", e.target.value)}
+                        autoFocus
+                      />
+                      <input
+                        className="ob-input"
+                        type="text"
+                        placeholder={currentQ.placeholder2}
+                        value={answers[currentQ.id + "_stage"] || ""}
+                        onChange={e => handleAnswer(currentQ.id + "_stage", e.target.value)}
+                      />
+                    </div>
+                  )}
+
+                  <div className="ob-nav">
+                    <button className="ob-back" onClick={goBack}>
+                      <span style={{ fontSize: 13 }}>←</span> Back
+                    </button>
+                    <button className="ob-continue" onClick={goNext} disabled={!canContinue()}>
+                      {step === questions.length ? "Finish" : "Continue"}
+                      <span style={{ fontSize: 14 }}>→</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Done ── */}
+              {isDone && (
+                <div className="ob-card">
+                  <div className="ob-done">
+                    <div className="ob-done-icon">A</div>
+                    <div className="ob-done-eyebrow">Setup complete</div>
+                    <div className="ob-done-title">
+                      You're all set,<br />
+                      <em>{firstName}.</em>
+                    </div>
+                    <div className="ob-done-sub">
+                      Asha knows your business now. Let's validate ideas, research markets, and build something great.
+                    </div>
+                    {error && <div className="ob-error">{error}</div>}
+                    <button className="ob-done-btn" onClick={handleSave} disabled={saving}>
+                      {saving ? "Setting up…" : "Enter Asha →"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+    </>
+  );
 }

@@ -737,44 +737,6 @@ export default function Settings() {
             </div>
           </div>
 
-          {/* ── Plan ── */}
-          <div className="settings-section">
-            <div className="settings-section-header">
-              <div className="settings-section-title">Plan</div>
-            </div>
-            <div className="plan-grid">
-              {PLANS.map(plan => (
-                <div
-                  key={plan.id}
-                  className={`plan-card ${currentPlan === plan.id ? "current" : ""}`}
-                >
-                  {currentPlan === plan.id && (
-                    <div className="plan-current-badge">Current plan</div>
-                  )}
-                  <div className="plan-name">{plan.name}</div>
-                  <div className="plan-price">
-                    {plan.price}<sub>/mo</sub>
-                  </div>
-                  <div className="plan-divider" />
-                  <div className="plan-features">
-                    {plan.features.map(f => (
-                      <div key={f} className="plan-feature">
-                        <div className="plan-feat-dot" />
-                        {f}
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    className={`plan-action-btn ${currentPlan === plan.id ? "current-btn" : ""}`}
-                    disabled={currentPlan === plan.id}
-                  >
-                    {currentPlan === plan.id ? "Current plan" : "Upgrade"}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* ── Account ── */}
           <div className="settings-section">
             <div className="settings-section-header">

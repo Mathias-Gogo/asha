@@ -324,12 +324,6 @@ const STYLES = `
     letter-spacing: -0.01em;
   }
 
-  .sb-plan-badge {
-    font-size: 9px; font-weight: 700;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: rgba(124,58,237,0.7);
-  }
-
   /* ─── Main area ─── */
   .shell-main {
     flex: 1;
@@ -455,267 +449,265 @@ const STYLES = `
 
 // ─── SVG Icons ───────────────────────────────────────────────────────────────
 const IconChat = () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </svg>
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  </svg>
 );
 
 const IconSettings = () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-    </svg>
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3" />
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+  </svg>
 );
 
 const IconSurvey = () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 11l3 3L22 4" />
-        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-    </svg>
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 11l3 3L22 4" />
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+  </svg>
 );
 
 const IconPlus = () => (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-    </svg>
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
 );
 
 const IconMenu = () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
-    </svg>
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+    <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
 );
 
 // ─── Sidebar content (shared between desktop + mobile drawer) ────────────────
 function SidebarContent({ expanded, conversations, activeConvoId, onNewChat, onSelectConvo, onNavigate, onSignOut, currentPath, profile, onClose }) {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const NAV = [
-        { label: "Chat", icon: <IconChat />, path: "/" },
-        { label: "Surveys", icon: <IconSurvey />, path: "/surveys" },
-        { label: "Settings", icon: <IconSettings />, path: "/settings" },
-    ];
+  const NAV = [
+    { label: "Chat", icon: <IconChat />, path: "/" },
+    { label: "Surveys", icon: <IconSurvey />, path: "/surveys" },
+    { label: "Settings", icon: <IconSettings />, path: "/settings" },
+  ];
 
-    const initials = profile?.founder_name
-        ? profile.founder_name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()
-        : "?";
+  const initials = profile?.founder_name
+    ? profile.founder_name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()
+    : "?";
 
-    const handle = (path) => {
-        navigate(path);
-        onClose?.();
-    };
+  const handle = (path) => {
+    navigate(path);
+    onClose?.();
+  };
 
-    return (
-        <>
-            {/* Logo */}
-            <div className="sb-logo-wrap">
-                <div className="sb-logo-mark">A</div>
-                {expanded && (
-                    <div className="sb-logo-text">
-                        <div className="sb-logo-name">Asha</div>
-                        <div className="sb-logo-by">by Mexuri</div>
-                    </div>
-                )}
+  return (
+    <>
+      {/* Logo */}
+      <div className="sb-logo-wrap">
+        <div className="sb-logo-mark">A</div>
+        {expanded && (
+          <div className="sb-logo-text">
+            <div className="sb-logo-name">Asha</div>
+            <div className="sb-logo-by">by Mexuri</div>
+          </div>
+        )}
+      </div>
+
+      {/* New chat */}
+      <button className="sb-new-btn" onClick={() => { onNewChat(); onClose?.(); }}>
+        <span className="sb-new-icon"><IconPlus /></span>
+        {expanded && <span>New chat</span>}
+      </button>
+
+      {/* Nav */}
+      <div className="sb-nav">
+        {NAV.map(item => (
+          <div
+            key={item.path}
+            className={`sb-nav-item ${currentPath === item.path ? "active" : ""}`}
+            onClick={() => handle(item.path)}
+          >
+            <span className="sb-nav-icon">{item.icon}</span>
+            {expanded && <span>{item.label}</span>}
+          </div>
+        ))}
+      </div>
+
+      <div className="sb-divider" />
+
+      {/* Conversations */}
+      {expanded && <div className="sb-section-label">Recent</div>}
+      <div className="sb-convos">
+        {conversations.length === 0
+          ? expanded && <div className="sb-empty-convos">No conversations yet</div>
+          : conversations.map(c => (
+            <div
+              key={c.id}
+              className={`sb-convo-item ${activeConvoId === c.id ? "active" : ""}`}
+              onClick={() => { onSelectConvo(c.id); onClose?.(); }}
+            >
+              <div className="sb-convo-dot" />
+              {expanded && <div className="sb-convo-title">{c.title}</div>}
             </div>
+          ))
+        }
+      </div>
 
-            {/* New chat */}
-            <button className="sb-new-btn" onClick={() => { onNewChat(); onClose?.(); }}>
-                <span className="sb-new-icon"><IconPlus /></span>
-                {expanded && <span>New chat</span>}
-            </button>
-
-            {/* Nav */}
-            <div className="sb-nav">
-                {NAV.map(item => (
-                    <div
-                        key={item.path}
-                        className={`sb-nav-item ${currentPath === item.path ? "active" : ""}`}
-                        onClick={() => handle(item.path)}
-                    >
-                        <span className="sb-nav-icon">{item.icon}</span>
-                        {expanded && <span>{item.label}</span>}
-                    </div>
-                ))}
+      {/* Profile */}
+      <div className="sb-profile">
+        <button className="sb-profile-btn" onClick={() => handle("/settings")}>
+          <div className="sb-avatar">{initials}</div>
+          {expanded && (
+            <div className="sb-profile-info">
+              <div className="sb-profile-name">
+                {profile?.founder_name || profile?.business_name || "My account"}
+              </div>
             </div>
-
-            <div className="sb-divider" />
-
-            {/* Conversations */}
-            {expanded && <div className="sb-section-label">Recent</div>}
-            <div className="sb-convos">
-                {conversations.length === 0
-                    ? expanded && <div className="sb-empty-convos">No conversations yet</div>
-                    : conversations.map(c => (
-                        <div
-                            key={c.id}
-                            className={`sb-convo-item ${activeConvoId === c.id ? "active" : ""}`}
-                            onClick={() => { onSelectConvo(c.id); onClose?.(); }}
-                        >
-                            <div className="sb-convo-dot" />
-                            {expanded && <div className="sb-convo-title">{c.title}</div>}
-                        </div>
-                    ))
-                }
-            </div>
-
-            {/* Profile */}
-            <div className="sb-profile">
-                <button className="sb-profile-btn" onClick={() => handle("/settings")}>
-                    <div className="sb-avatar">{initials}</div>
-                    {expanded && (
-                        <div className="sb-profile-info">
-                            <div className="sb-profile-name">
-                                {profile?.founder_name || profile?.business_name || "My account"}
-                            </div>
-                            <div className="sb-plan-badge">{profile?.plan || "free"}</div>
-                        </div>
-                    )}
-                </button>
-            </div>
-        </>
-    );
+          )}
+        </button>
+      </div>
+    </>
+  );
 }
 
 // ─── Main AppShell ────────────────────────────────────────────────────────────
 export default function AppShell() {
-    const { profile, signOut, theme } = useAuth();
+  const { profile, signOut, theme } = useAuth();
 
-    useEffect(() => {
-        document.documentElement.setAttribute("data-theme", theme);
-    }, [theme]);
-    const navigate = useNavigate();
-    const location = useLocation();
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const [sidebarExpanded, setSidebarExpanded] = useState(false);
-    const [drawerOpen, setDrawerOpen] = useState(false);
-    const [conversations, setConversations] = useState([]);
-    const [activeConvoId, setActiveConvoId] = useState(null);
-    const hoverTimeout = useRef(null);
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [conversations, setConversations] = useState([]);
+  const [activeConvoId, setActiveConvoId] = useState(null);
+  const hoverTimeout = useRef(null);
 
-    // Page title map
-    const PAGE_TITLES = {
-        "/": activeConvoId
-            ? conversations.find(c => c.id === activeConvoId)?.title || "Chat"
-            : "New conversation",
-        "/settings": "Settings",
-        "/surveys": "Surveys",
-    };
+  // Page title map
+  const PAGE_TITLES = {
+    "/": activeConvoId
+      ? conversations.find(c => c.id === activeConvoId)?.title || "Chat"
+      : "New conversation",
+    "/settings": "Settings",
+    "/surveys": "Surveys",
+  };
 
-    const pageTitle = PAGE_TITLES[location.pathname] || "Asha";
+  const pageTitle = PAGE_TITLES[location.pathname] || "Asha";
 
-    // Load conversations
-    useEffect(() => {
-        if (profile?.id) loadConversations();
-    }, [profile?.id]);
+  // Load conversations
+  useEffect(() => {
+    if (profile?.id) loadConversations();
+  }, [profile?.id]);
 
-    const loadConversations = async () => {
-        const { data } = await supabase
-            .from("conversations")
-            .select("id, title, created_at")
-            .order("created_at", { ascending: false })
-            .limit(30);
-        if (data) setConversations(data);
-    };
+  const loadConversations = async () => {
+    const { data } = await supabase
+      .from("conversations")
+      .select("id, title, created_at")
+      .order("created_at", { ascending: false })
+      .limit(30);
+    if (data) setConversations(data);
+  };
 
-    const handleNewChat = () => {
-        setActiveConvoId(null);
-        navigate("/");
-    };
+  const handleNewChat = () => {
+    setActiveConvoId(null);
+    navigate("/");
+  };
 
-    // Hover expand/collapse for desktop sidebar
-    const onSidebarMouseEnter = () => {
-        clearTimeout(hoverTimeout.current);
-        setSidebarExpanded(true);
-    };
+  // Hover expand/collapse for desktop sidebar
+  const onSidebarMouseEnter = () => {
+    clearTimeout(hoverTimeout.current);
+    setSidebarExpanded(true);
+  };
 
-    const onSidebarMouseLeave = () => {
-        hoverTimeout.current = setTimeout(() => setSidebarExpanded(false), 200);
-    };
+  const onSidebarMouseLeave = () => {
+    hoverTimeout.current = setTimeout(() => setSidebarExpanded(false), 200);
+  };
 
-    return (
-        <>
-            <style>{STYLES}</style>
-            <div className="shell-wrap">
+  return (
+    <>
+      <style>{STYLES}</style>
+      <div className="shell-wrap">
 
-                {/* ─── Desktop sidebar ─── */}
-                <div
-                    className={`sidebar ${sidebarExpanded ? "expanded" : "collapsed"}`}
-                    onMouseEnter={onSidebarMouseEnter}
-                    onMouseLeave={onSidebarMouseLeave}
-                >
-                    <SidebarContent
-                        expanded={sidebarExpanded}
-                        conversations={conversations}
-                        activeConvoId={activeConvoId}
-                        onNewChat={handleNewChat}
-                        onSelectConvo={setActiveConvoId}
-                        currentPath={location.pathname}
-                        profile={profile}
-                        onSignOut={signOut}
-                    />
-                </div>
+        {/* ─── Desktop sidebar ─── */}
+        <div
+          className={`sidebar ${sidebarExpanded ? "expanded" : "collapsed"}`}
+          onMouseEnter={onSidebarMouseEnter}
+          onMouseLeave={onSidebarMouseLeave}
+        >
+          <SidebarContent
+            expanded={sidebarExpanded}
+            conversations={conversations}
+            activeConvoId={activeConvoId}
+            onNewChat={handleNewChat}
+            onSelectConvo={setActiveConvoId}
+            currentPath={location.pathname}
+            profile={profile}
+            onSignOut={signOut}
+          />
+        </div>
 
-                {/* ─── Mobile drawer ─── */}
-                <AnimatePresence>
-                    {drawerOpen && (
-                        <>
-                            <motion.div
-                                className="drawer-backdrop"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                onClick={() => setDrawerOpen(false)}
-                            />
-                            <motion.div
-                                className="sidebar-drawer"
-                                initial={{ x: -280 }}
-                                animate={{ x: 0 }}
-                                exit={{ x: -280 }}
-                                transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
-                            >
-                                <SidebarContent
-                                    expanded={true}
-                                    conversations={conversations}
-                                    activeConvoId={activeConvoId}
-                                    onNewChat={handleNewChat}
-                                    onSelectConvo={setActiveConvoId}
-                                    currentPath={location.pathname}
-                                    profile={profile}
-                                    onSignOut={signOut}
-                                    onClose={() => setDrawerOpen(false)}
-                                />
-                            </motion.div>
-                        </>
-                    )}
-                </AnimatePresence>
+        {/* ─── Mobile drawer ─── */}
+        <AnimatePresence>
+          {drawerOpen && (
+            <>
+              <motion.div
+                className="drawer-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => setDrawerOpen(false)}
+              />
+              <motion.div
+                className="sidebar-drawer"
+                initial={{ x: -280 }}
+                animate={{ x: 0 }}
+                exit={{ x: -280 }}
+                transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+              >
+                <SidebarContent
+                  expanded={true}
+                  conversations={conversations}
+                  activeConvoId={activeConvoId}
+                  onNewChat={handleNewChat}
+                  onSelectConvo={setActiveConvoId}
+                  currentPath={location.pathname}
+                  profile={profile}
+                  onSignOut={signOut}
+                  onClose={() => setDrawerOpen(false)}
+                />
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
-                {/* ─── Main area ─── */}
-                <div className="shell-main">
+        {/* ─── Main area ─── */}
+        <div className="shell-main">
 
-                    {/* Top bar */}
-                    <div className="shell-topbar">
-                        <div className="topbar-left">
-                            <button className="hamburger-btn" onClick={() => setDrawerOpen(true)}>
-                                <IconMenu />
-                            </button>
-                            <div className="topbar-title">{pageTitle}</div>
-                        </div>
-                        <div className="topbar-right">
-                            <div className="topbar-plan">{profile?.plan || "free"}</div>
-                            <button className="topbar-btn" title="New chat" onClick={handleNewChat}>
-                                <IconPlus />
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Page content */}
-                    <div className="shell-content">
-                        <Outlet context={{ activeConvoId, setActiveConvoId, loadConversations }} />
-                    </div>
-
-                </div>
+          {/* Top bar */}
+          <div className="shell-topbar">
+            <div className="topbar-left">
+              <button className="hamburger-btn" onClick={() => setDrawerOpen(true)}>
+                <IconMenu />
+              </button>
+              <div className="topbar-title">{pageTitle}</div>
             </div>
-        </>
-    );
+            <div className="topbar-right">
+              <button className="topbar-btn" title="New chat" onClick={handleNewChat}>
+                <IconPlus />
+              </button>
+            </div>
+          </div>
+
+          {/* Page content */}
+          <div className="shell-content">
+            <Outlet context={{ activeConvoId, setActiveConvoId, loadConversations }} />
+          </div>
+
+        </div>
+      </div>
+    </>
+  );
 }

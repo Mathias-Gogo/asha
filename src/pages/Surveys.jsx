@@ -609,9 +609,7 @@ export default function Surveys() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   const plan = profile?.plan || "free";
-  const isLocked = plan === "free";
-  const surveyLimit = plan === "pro" ? 5 : Infinity;
-  const canCreate = !isLocked && surveys.length < surveyLimit;
+  const canCreate = true;
 
   useEffect(() => {
     if (user?.id) {
@@ -767,18 +765,7 @@ Generate 6-8 questions. Mix types. Focus on validating the idea and uncovering p
       <style>{STYLES}</style>
       <div className="surveys-wrap">
 
-        {isLocked ? (
-          <div className="surveys-locked" style={{ flex: 1 }}>
-            <div style={{ fontSize: 28 }}>📋</div>
-            <div className="surveys-locked-title">Surveys are a Pro feature</div>
-            <div className="surveys-locked-sub">
-              Upgrade to Pro to create up to 5 surveys and validate your ideas with real data.
-            </div>
-            <button className="surveys-upgrade-btn" onClick={() => window.location.href = "/settings"}>
-              Upgrade to Pro →
-            </button>
-          </div>
-        ) : (
+        {(
           <>
             {/* ── Desktop left panel ── */}
             <div className="surveys-list">
@@ -826,12 +813,6 @@ Generate 6-8 questions. Mix types. Focus on validating the idea and uncovering p
                   ))
                 )}
               </div>
-
-              {plan === "pro" && (
-                <div className="surveys-usage">
-                  {surveys.length} / {surveyLimit} surveys used
-                </div>
-              )}
             </div>
 
             {/* ── Mobile survey selector ── */}
