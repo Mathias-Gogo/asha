@@ -5,6 +5,20 @@ import remarkGfm from "remark-gfm";
 import { supabase } from "./lib/supabase";
 import { useAuth } from "./context/AuthContext";
 
+// ─── Skeleton Loader for messages ──────────────────────────────────────────
+function MessageSkeleton() {
+  return (
+    <div className="msg asha skeleton-msg">
+      <span className="msg-label">Asha</span>
+      <div className="asha-msg-plain">
+        <div className="skeleton-line skeleton-line-short" />
+        <div className="skeleton-line" />
+        <div className="skeleton-line skeleton-line-medium" />
+      </div>
+    </div>
+  );
+}
+
 function AshaMessage({ content }) {
   if (!content) return null;
   const cleaned = content.replace(/```chart[\s\S]*?```/g, "").trim();
@@ -43,35 +57,6 @@ function RateLimitModal({ waitTime, onClose }) {
         </p>
         <button className="modal-btn" onClick={onClose}>Got it</button>
       </div>
-    </div>
-  );
-}
-
-// ─── Skeleton loader for survey picker ─────────────────────────────────────────
-function SurveyPickerSkeleton() {
-  return (
-    <div className="survey-picker">
-      <div className="survey-picker-header">Attach a survey</div>
-      {[1, 2, 3].map(i => (
-        <div key={i} className="survey-picker-item" style={{ pointerEvents: 'none' }}>
-          <div className="survey-picker-dot" style={{ background: 'rgba(255,255,255,0.05)' }} />
-          <div className="survey-picker-info" style={{ flex: 1 }}>
-            <div style={{
-              height: 12,
-              width: `${60 + Math.random() * 30}%`,
-              background: 'rgba(255,255,255,0.05)',
-              borderRadius: 4,
-              marginBottom: 4
-            }} />
-            <div style={{
-              height: 10,
-              width: '40%',
-              background: 'rgba(255,255,255,0.03)',
-              borderRadius: 4
-            }} />
-          </div>
-        </div>
-      ))}
     </div>
   );
 }
@@ -171,6 +156,8 @@ const STYLES = `
     width: 100%; max-width: 720px;
     margin: 0 auto; padding: 0 24px;
     display: flex; flex-direction: column; gap: 20px;
+    min-height: 100%; 
+    justify-content: flex-start;
   }
 
   .empty-state {
@@ -272,38 +259,39 @@ const STYLES = `
   .md-td { padding: 8px 13px; border-bottom: 1px solid var(--border); line-height: 1.5; color: var(--fg); }
   .md-table tr:last-child .md-td { border-bottom: none; }
 
-  /* Streaming indicator */
-  .streaming-indicator {
-    display: flex; align-items: center; gap: 10px;
-    padding: 6px 4px;
+  /* ── Skeleton Loading ── */
+  .skeleton-msg { animation: fadeUp 0.3s ease forwards !important; }
+  
+  .skeleton-line {
+    height: 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    animation: skeletonShimmer 1.5s infinite;
+    background: linear-gradient(90deg, 
+      rgba(124,58,237,0.25) 0%, 
+      rgba(167,139,250,0.55) 50%, 
+      rgba(124,58,237,0.25) 100%
+    );
+    background-size: 200% 100%;
+    box-shadow: 0 0 8px rgba(124,58,237,0.15);
   }
-
-  .streaming-dots {
-    display: flex; gap: 4px; align-items: center;
+  
+  .skeleton-line-short { width: 40%; }
+  .skeleton-line-medium { width: 70%; }
+  
+  @keyframes skeletonShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
-
-  .streaming-dots span {
-    width: 5px; height: 5px; background: var(--accent-light);
-    border-radius: 50%; animation: blink 1.4s infinite; opacity: 0.3;
-  }
-
-  .streaming-dots span:nth-child(2) { animation-delay: 0.2s; }
-  .streaming-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-  .streaming-text {
-    font-size: 12px; color: var(--fg-2);
-    font-weight: 500; letter-spacing: 0.01em;
-    animation: textFade 0.3s ease;
-  }
-
-  @keyframes textFade {
-    from { opacity: 0; transform: translateX(-4px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  @keyframes blink {
-    0%,80%,100% { opacity: 0.2; transform: scale(0.8); }
-    40% { opacity: 1; transform: scale(1); }
+  
+  [data-theme="light"] .skeleton-line {
+    background: linear-gradient(90deg, 
+      rgba(124,58,237,0.18) 0%, 
+      rgba(124,58,237,0.45) 50%, 
+      rgba(124,58,237,0.18) 100%
+    );
+    background-size: 200% 100%;
+    box-shadow: 0 0 6px rgba(124,58,237,0.1);
   }
 
   /* Message actions */
@@ -595,7 +583,7 @@ const STYLES = `
     .empty-greeting { font-size: 1.5rem; }
   }
 
-    /* ── Survey Preview Card ── */
+  /* ── Survey Preview Card ── */
   .survey-preview-card {
     background: rgba(124,58,237,0.06);
     border: 1px solid rgba(124,58,237,0.2);
@@ -672,9 +660,7 @@ const STYLES = `
     margin-top: 2px;
   }
 
-  .survey-preview-q-body {
-    flex: 1;
-  }
+  .survey-preview-q-body { flex: 1; }
 
   .survey-preview-q-text {
     font-size: 12px;
@@ -790,6 +776,40 @@ const STYLES = `
     cursor: not-allowed;
     transform: none;
   }
+
+  /* ── Survey Draft Button ── */
+  .survey-draft-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: rgba(124,58,237,0.1);
+    border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 8px;
+    color: #a78bfa;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Montserrat', sans-serif;
+    margin-top: 8px;
+  }
+
+  .survey-draft-btn:hover {
+    background: rgba(124,58,237,0.18);
+    border-color: rgba(124,58,237,0.4);
+    transform: translateY(-1px);
+  }
+
+  .survey-draft-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .survey-draft-btn svg {
+    width: 14px; height: 14px;
+  }
 `;
 
 const SUGGESTIONS = [
@@ -857,6 +877,13 @@ const IconSend = () => (
   </svg>
 );
 
+const IconSurvey = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 11l3 3L22 4" />
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+  </svg>
+);
+
 // ─── Copy button ──────────────────────────────────────────────────────────────
 function CopyButton({ text }) {
   const [copied, setCopied] = useState(false);
@@ -872,7 +899,7 @@ function CopyButton({ text }) {
   );
 }
 
-// ─── Survey Preview Card (shown in chat when Asha drafts a survey) ───────────
+// ─── Survey Preview Card ────────────────────────────────────────────────────
 function SurveyPreviewCard({ surveyData, onCreate, onEdit }) {
   const [creating, setCreating] = useState(false);
 
@@ -1023,12 +1050,33 @@ export default function Asha() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [streaming, setStreaming] = useState(false);
   const [rateLimit, setRateLimit] = useState(null);
   const [attachedSurvey, setAttachedSurvey] = useState(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerSurveys, setPickerSurveys] = useState([]);
-  const [pickerLoading, setPickerLoading] = useState(false);
+  const [businessContext, setBusinessContext] = useState("");
+
+  // Survey draft state
+  const [surveyDraftLoading, setSurveyDraftLoading] = useState(false);
+  const [showSurveyButton, setShowSurveyButton] = useState(false);
+  const [surveyDraftData, setSurveyDraftData] = useState(null);
+
+  useEffect(() => {
+    if (user?.id) loadBusinessContext();
+  }, [user?.id]);
+
+  const loadBusinessContext = async () => {
+    const { data } = await supabase
+      .from("business_data")
+      .select("content")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true });
+
+    if (data && data.length > 0) {
+      const ctx = data.map(d => d.content).join("\n");
+      setBusinessContext(ctx);
+    }
+  };
 
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
@@ -1036,6 +1084,71 @@ export default function Asha() {
 
   const greeting = useGreeting(profile?.founder_name);
   const navigate = useNavigate();
+
+  // ─── Survey Draft: Button-triggered ───────────────────────────────────────
+  const handleDraftSurvey = async () => {
+    if (surveyDraftLoading) return;
+    setSurveyDraftLoading(true);
+    setSurveyDraftData(null);
+
+    try {
+      // Extract idea from recent chat
+      const recentMessages = messages.slice(-10);
+      const userMessages = recentMessages.filter(m => m.role === 'user').map(m => m.content);
+      const idea = userMessages.join("\n").slice(0, 1000);
+
+      const res = await fetch("/api/survey-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          idea,
+          businessContext: businessContext || null,
+          chatHistory: recentMessages,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.error_type === "rate_limit") {
+        setRateLimit({ waitTime: data.wait_time });
+        setSurveyDraftLoading(false);
+        return;
+      }
+
+      if (data.error) {
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: `❌ ${data.error}`
+        }]);
+        setSurveyDraftLoading(false);
+        return;
+      }
+
+      if (data.survey) {
+        // Show preview card in chat
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: '__SURVEY_PREVIEW__',
+          surveyData: data.survey
+        }]);
+
+        // Save reference to conversation
+        if (activeConvoId) {
+          await saveMessage(activeConvoId, 'assistant', `[Survey draft: ${data.survey.title}]`);
+        }
+
+        setShowSurveyButton(false);
+      }
+    } catch (err) {
+      console.error("Survey draft error:", err);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: '❌ Something went wrong drafting the survey. Please try again.'
+      }]);
+    } finally {
+      setSurveyDraftLoading(false);
+    }
+  };
 
   const handleCreateSurvey = async (surveyData) => {
     try {
@@ -1053,18 +1166,15 @@ export default function Asha() {
 
       if (error) throw error;
 
-      // Add a confirmation message
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: `✅ Created **"${saved.title}"**. You can find it in your Surveys tab.`
       }]);
 
-      // Save to conversation
       if (activeConvoId) {
         await saveMessage(activeConvoId, 'assistant', `Created survey: ${saved.title}`);
       }
 
-      // Navigate to surveys with the new one selected
       navigate('/surveys', {
         state: {
           newSurveyId: saved.id,
@@ -1100,13 +1210,17 @@ export default function Asha() {
   // Load messages when conversation changes
   useEffect(() => {
     if (activeConvoId) loadMessages(activeConvoId);
-    else setMessages([]);
+    else {
+      setMessages([]);
+      setShowSurveyButton(false);
+      setSurveyDraftData(null);
+    }
   }, [activeConvoId]);
 
   // Scroll to bottom
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading, streaming]);
+  }, [messages, loading]);
 
   // Close picker on outside click
   useEffect(() => {
@@ -1119,6 +1233,20 @@ export default function Asha() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [pickerOpen]);
+
+  // Show survey button when conversation has enough context
+  useEffect(() => {
+    const userMsgs = messages.filter(m => m.role === 'user');
+    const hasIdea = userMsgs.some(m =>
+      m.content.length > 30 &&
+      (m.content.toLowerCase().includes('idea') ||
+        m.content.toLowerCase().includes('app') ||
+        m.content.toLowerCase().includes('business') ||
+        m.content.toLowerCase().includes('startup') ||
+        m.content.toLowerCase().includes('problem'))
+    );
+    setShowSurveyButton(hasIdea && userMsgs.length >= 2);
+  }, [messages]);
 
   const preloadSurveys = async () => {
     const { data } = await supabase
@@ -1188,53 +1316,8 @@ export default function Asha() {
     return ctx;
   };
 
-  const buildBusinessContext = async () => {
-    if (!user?.id) return "";
-    const { data } = await supabase
-      .from("business_data")
-      .select("content, source")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: true });
-
-    if (!data?.length) return "";
-
-    let ctx = "\n\nFOUNDER BUSINESS CONTEXT:\n";
-    data.forEach((chunk) => {
-      ctx += `[${chunk.source}] ${chunk.content}\n`;
-    });
-    ctx += "\nUse this context to personalize your answers. Reference the founder's business, sector, and stage when relevant.";
-    return ctx;
-  };
-
-  const buildToolPrompt = () => {
-    return `\n\nYou have access to a tool called "create_survey". When the founder wants to create a survey, validate an idea, or collect feedback, you SHOULD use this tool.
-  
-  To use it, respond with a JSON block like this (and NOTHING else):
-  
-  \`\`\`json
-  {
-    "tool": "create_survey",
-    "title": "Short survey title (max 40 chars)",
-    "description": "One sentence shown to respondents",
-    "questions": [
-      { "id": "q1", "type": "text", "text": "Question here" },
-      { "id": "q2", "type": "single_choice", "text": "Question here", "options": ["Option A", "Option B"] },
-      { "id": "q3", "type": "rating", "text": "Rate this (1=low, 5=high)" },
-      { "id": "q4", "type": "multi_choice", "text": "Which apply?", "options": ["A", "B", "C"] }
-    ]
-  }
-  \`\`\`
-  
-  Generate 6-8 questions. Mix types. Focus on validating the founder's specific idea or problem. Make questions specific to their business context.
-  
-  If you use the tool, ONLY output the JSON block. Do not add conversational text before or after.
-  
-  If the founder is NOT asking for a survey, respond normally without using the tool.`;
-  };
-
   const openPicker = async () => {
     if (pickerOpen) { setPickerOpen(false); return; }
-    // Surveys already preloaded, just open
     setPickerOpen(true);
   };
 
@@ -1248,111 +1331,15 @@ export default function Asha() {
     setPickerOpen(false);
   };
 
-  // ─── STREAMING RESPONSE HANDLER ─────────────────────────────────────────────
-  const streamResponse = async (res, updated, convoId) => {
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let fullContent = "";
-    let buffer = "";
-
-    // Add empty assistant message
-    setMessages([...updated, { role: "assistant", content: "" }]);
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop(); // Keep incomplete line in buffer
-
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed.startsWith("data: ")) continue;
-
-        const jsonStr = trimmed.slice(6).trim();
-        if (jsonStr === "[DONE]") continue;
-
-        try {
-          const parsed = JSON.parse(jsonStr);
-          const delta = parsed.choices?.[0]?.delta?.content;
-          if (delta) {
-            fullContent += delta;
-            setMessages(prev => {
-              const next = [...prev];
-              next[next.length - 1] = { role: "assistant", content: fullContent };
-              return next;
-            });
-          }
-        } catch (e) {
-          // Skip malformed JSON
-        }
-      }
-    }
-
-    // Flush remaining buffer
-    if (buffer.trim().startsWith("data: ")) {
-      const jsonStr = buffer.trim().slice(6).trim();
-      if (jsonStr !== "[DONE]") {
-        try {
-          const parsed = JSON.parse(jsonStr);
-          const delta = parsed.choices?.[0]?.delta?.content;
-          if (delta) fullContent += delta;
-        } catch (e) { }
-      }
-    }
-
-    // Check if the response is a tool call
-    const toolCall = parseToolCall(fullContent);
-    if (toolCall) {
-      setStreaming(false);
-      // Don't save the raw JSON to messages — render the preview card instead
-      setMessages(prev => [...updated, {
-        role: 'assistant',
-        content: '__SURVEY_PREVIEW__',
-        surveyData: toolCall.data
-      }]);
-      await saveMessage(convoId, "assistant", `[Survey draft: ${toolCall.data.title}]`);
-      return fullContent;
-    }
-
-    setStreaming(false);
-    await saveMessage(convoId, "assistant", fullContent);
-    return fullContent;
-  };
-
-  const parseToolCall = (content) => {
-    const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
-    if (!jsonMatch) return null;
-
-    try {
-      const parsed = JSON.parse(jsonMatch[1]);
-      if (parsed.tool === 'create_survey') {
-        return {
-          type: 'create_survey',
-          data: {
-            title: parsed.title,
-            description: parsed.description,
-            questions: parsed.questions
-          }
-        };
-      }
-    } catch (e) {
-      return null;
-    }
-    return null;
-  };
-
   const sendMessage = async (text) => {
     const trimmed = text.trim();
-    if (!trimmed || loading || streaming) return;
+    if (!trimmed || loading) return;
 
     const userMsg = { role: "user", content: trimmed };
     const updated = [...messages, userMsg];
 
     const surveySnapshot = attachedSurvey;
     const surveyCtx = buildSurveyContext(surveySnapshot);
-    const businessCtx = await buildBusinessContext();
 
     setMessages(updated);
     setInput("");
@@ -1370,83 +1357,41 @@ export default function Asha() {
 
       await saveMessage(convoId, "user", trimmed);
 
-      const toolPrompt = buildToolPrompt();
-      const systemPrompt = `You are Asha, an AI assistant made by Mexuri. You help African founders with business research, market analysis, idea validation, and strategy. Be sharp, direct, and insightful.${surveyCtx}${businessCtx}${toolPrompt}`;
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: updated.map(({ role, content }) => ({ role, content })),
+          businessContext: businessContext || null,
+        }),
+      });
 
-      if (import.meta.env.DEV) {
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: "llama-3.3-70b-versatile",
-            messages: [
-              { role: "system", content: systemPrompt },
-              ...updated,
-            ],
-            temperature: 0.7,
-            max_tokens: 1024,
-            stream: true,
-          }),
-        });
+      // Read body ONCE as text, then parse manually
+      const rawText = await res.text();
 
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => ({}));
-          const msg = errorData.error?.message ?? "";
-          const match = msg.match(/try again in ([0-9.]+)s/i);
-          const seconds = match ? Math.ceil(parseFloat(match[1])) : 60;
-          const waitTime = seconds >= 60
-            ? `${Math.ceil(seconds / 60)} minute${Math.ceil(seconds / 60) > 1 ? "s" : ""}`
-            : `${seconds} seconds`;
-          setRateLimit({ waitTime });
-          setLoading(false);
-          return;
-        }
-
-        setLoading(false);
-        setStreaming(true);
-        await streamResponse(res, updated, convoId);
-
-      } else {
-        // Production: fallback to blocking for now
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            messages: updated.map(({ role, content }) => ({ role, content })),
-            surveyContext: surveyCtx || null,
-          }),
-        });
-        const data = await res.json();
-        if (data.error_type === "rate_limit") {
-          setRateLimit({ waitTime: data.wait_time });
-          setLoading(false);
-          return;
-        }
-        const reply = data.reply || "Something went wrong.";
-        await saveMessage(convoId, "assistant", reply);
-        setMessages([...updated, { role: "assistant", content: reply }]);
-        const toolCall = parseToolCall(reply);
-        if (toolCall) {
-          setMessages([...updated, {
-            role: 'assistant',
-            content: '__SURVEY_PREVIEW__',
-            surveyData: toolCall.data
-          }]);
-          await saveMessage(convoId, "assistant", `[Survey draft: ${toolCall.data.title}]`);
-          setLoading(false);
-          return;
-        }
-        setLoading(false);
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (e) {
+        console.error("Failed to parse JSON. Response was:", rawText);
+        throw new Error("Invalid JSON from server");
       }
+
+      if (data.error_type === "rate_limit") {
+        setRateLimit({ waitTime: data.wait_time });
+        setLoading(false);
+        return;
+      }
+
+      const reply = data.reply || "Something went wrong.";
+      await saveMessage(convoId, "assistant", reply);
+      setMessages([...updated, { role: "assistant", content: reply }]);
+      setLoading(false);
 
     } catch (err) {
       console.error(err);
       setMessages([...updated, { role: "assistant", content: "Something went wrong. Please try again." }]);
       setLoading(false);
-      setStreaming(false);
     }
   };
 
@@ -1468,60 +1413,41 @@ export default function Asha() {
 
         {/* Messages */}
         <div className="asha-messages">
-          {messages.length === 0 && !loading && !streaming ? (
-            <div className="empty-state">
-              <div className="empty-greeting">{greeting}</div>
-              <div className="empty-suggestions">
-                {SUGGESTIONS.map(s => (
-                  <button key={s} className="suggestion-chip" onClick={() => sendMessage(s)}>
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="messages-inner">
-              {messages.map((m, i) => (
-                <MessageRow
-                  key={i}
-                  message={m}
-                  index={i}
-                  onResend={(text) => sendMessage(text)}
-                  onEdit={(index, newText) => {
-                    const trimmed = newText.trim();
-                    if (!trimmed) return;
-                    setMessages(prev => prev.slice(0, index));
-                    sendMessage(trimmed);
-                  }}
-                  onCreateSurvey={handleCreateSurvey}
-                  onEditSurvey={handleEditSurvey}
-                />
-              ))}
-              {(loading || streaming) && (
-                <div className="msg asha">
-                  <span className="msg-label">Asha</span>
-                  <div className="asha-msg-plain">
-                    {streaming ? (
-                      <div className="streaming-indicator">
-                        <div className="streaming-dots">
-                          <span /><span /><span />
-                        </div>
-                        <div className="streaming-text">Generating…</div>
-                      </div>
-                    ) : (
-                      <div className="streaming-indicator">
-                        <div className="streaming-dots">
-                          <span /><span /><span />
-                        </div>
-                        <div className="streaming-text">Thinking…</div>
-                      </div>
-                    )}
-                  </div>
+          <div className="messages-inner">
+            {messages.length === 0 && !loading ? (
+              <div className="empty-state">
+                <div className="empty-greeting">{greeting}</div>
+                <div className="empty-suggestions">
+                  {SUGGESTIONS.map(s => (
+                    <button key={s} className="suggestion-chip" onClick={() => sendMessage(s)}>
+                      {s}
+                    </button>
+                  ))}
                 </div>
-              )}
-              <div ref={bottomRef} />
-            </div>
-          )}
+              </div>
+            ) : (
+              <>
+                {messages.map((m, i) => (
+                  <MessageRow
+                    key={i}
+                    message={m}
+                    index={i}
+                    onResend={(text) => sendMessage(text)}
+                    onEdit={(index, newText) => {
+                      const trimmed = newText.trim();
+                      if (!trimmed) return;
+                      setMessages(prev => prev.slice(0, index));
+                      sendMessage(trimmed);
+                    }}
+                    onCreateSurvey={handleCreateSurvey}
+                    onEditSurvey={handleEditSurvey}
+                  />
+                ))}
+                {loading && <MessageSkeleton />}
+                <div ref={bottomRef} />
+              </>
+            )}
+          </div>
         </div>
 
         {/* Input */}
@@ -1540,35 +1466,45 @@ export default function Asha() {
             </div>
           )}
 
+          {/* Survey Draft Button */}
+          {showSurveyButton && !loading && (
+            <div style={{ maxWidth: 680, margin: '0 auto 10px', display: 'flex', gap: 8 }}>
+              <button
+                className="survey-draft-btn"
+                onClick={handleDraftSurvey}
+                disabled={surveyDraftLoading}
+              >
+                <IconSurvey />
+                {surveyDraftLoading ? "Drafting survey…" : "Draft a validation survey"}
+              </button>
+            </div>
+          )}
+
           <div className="asha-input-pill" ref={pickerRef}>
 
             {pickerOpen && (
-              pickerSurveys.length === 0 && pickerLoading ? (
-                <SurveyPickerSkeleton />
-              ) : (
-                <div className="survey-picker">
-                  <div className="survey-picker-header">Attach a survey</div>
-                  {pickerSurveys.length === 0 ? (
-                    <div className="survey-picker-empty">No surveys yet</div>
-                  ) : (
-                    pickerSurveys.map(s => (
-                      <div
-                        key={s.id}
-                        className="survey-picker-item"
-                        onClick={() => attachSurvey(s)}
-                      >
-                        <div className={`survey-picker-dot ${s.is_active ? "live" : ""}`} />
-                        <div className="survey-picker-info">
-                          <div className="survey-picker-title">{s.title}</div>
-                          <div className="survey-picker-meta">
-                            {s.is_active ? "Live" : "Draft"} · {s.questions?.length || 0} questions
-                          </div>
+              <div className="survey-picker">
+                <div className="survey-picker-header">Attach a survey</div>
+                {pickerSurveys.length === 0 ? (
+                  <div className="survey-picker-empty">No surveys yet</div>
+                ) : (
+                  pickerSurveys.map(s => (
+                    <div
+                      key={s.id}
+                      className="survey-picker-item"
+                      onClick={() => attachSurvey(s)}
+                    >
+                      <div className={`survey-picker-dot ${s.is_active ? "live" : ""}`} />
+                      <div className="survey-picker-info">
+                        <div className="survey-picker-title">{s.title}</div>
+                        <div className="survey-picker-meta">
+                          {s.is_active ? "Live" : "Draft"} · {s.questions?.length || 0} questions
                         </div>
                       </div>
-                    ))
-                  )}
-                </div>
-              )
+                    </div>
+                  ))
+                )}
+              </div>
             )}
 
             <button
@@ -1576,7 +1512,6 @@ export default function Asha() {
               onClick={openPicker}
               title="Attach a survey"
               type="button"
-              disabled={pickerLoading}
             >
               <IconAttach />
             </button>
@@ -1588,13 +1523,13 @@ export default function Asha() {
               value={input}
               onChange={e => { setInput(e.target.value); adjustTextarea(); }}
               onKeyDown={onKeyDown}
-              disabled={loading || streaming}
+              disabled={loading}
             />
 
             <button
               className="send-btn"
               onClick={send}
-              disabled={loading || streaming || !input.trim()}
+              disabled={loading || !input.trim()}
             >
               <IconSend />
             </button>

@@ -22,78 +22,100 @@ const STYLES = `
   }
 
   [data-theme="light"] {
-  --bg: #f8f8fc;
-  --surface: #ffffff;
-  --surface-2: #f0f0f5;
-  --fg: rgba(0,0,0,0.85);
-  --fg-2: rgba(0,0,0,0.45);
-  --muted: rgba(0,0,0,0.25);
-  --border: rgba(0,0,0,0.07);
-  --input-bg: rgba(0,0,0,0.03);
-}
+    --bg: #f8f8fc;
+    --surface: #ffffff;
+    --surface-2: #f0f0f5;
+    --fg: rgba(0,0,0,0.85);
+    --fg-2: rgba(0,0,0,0.45);
+    --muted: rgba(0,0,0,0.25);
+    --border: rgba(0,0,0,0.07);
+    --input-bg: rgba(0,0,0,0.03);
+  }
 
-[data-theme="light"] .shell-wrap {
-  background: #f8f8fc;
-  color: rgba(0,0,0,0.85);
-}
+  [data-theme="light"] .shell-wrap {
+    background: #f8f8fc;
+    color: rgba(0,0,0,0.85);
+  }
 
-[data-theme="light"] .sidebar {
-  background: #f0f0f5;
-  border-right-color: rgba(0,0,0,0.07);
-}
+  [data-theme="light"] .sidebar {
+    background: #f0f0f5;
+    border-right-color: rgba(0,0,0,0.07);
+  }
 
-[data-theme="light"] .sidebar-drawer {
-  background: #f0f0f5;
-  border-right-color: rgba(0,0,0,0.07);
-}
+  [data-theme="light"] .sidebar-drawer {
+    background: #f0f0f5;
+    border-right-color: rgba(0,0,0,0.07);
+  }
 
-[data-theme="light"] .sb-logo-wrap {
-  border-bottom-color: rgba(0,0,0,0.06);
-}
+  [data-theme="light"] .sb-logo-wrap {
+    border-bottom-color: rgba(0,0,0,0.06);
+  }
 
-[data-theme="light"] .sb-logo-name { color: rgba(0,0,0,0.7); }
-[data-theme="light"] .sb-logo-by   { color: rgba(0,0,0,0.25); }
+  [data-theme="light"] .sb-logo-name { color: rgba(0,0,0,0.7); }
+  [data-theme="light"] .sb-logo-by   { color: rgba(0,0,0,0.25); }
 
-[data-theme="light"] .sb-nav-item {
-  color: rgba(0,0,0,0.35);
-}
+  [data-theme="light"] .sb-nav-item {
+    color: rgba(0,0,0,0.35);
+  }
 
-[data-theme="light"] .sb-nav-item:hover {
-  background: rgba(0,0,0,0.04);
-  color: rgba(0,0,0,0.65);
-}
+  [data-theme="light"] .sb-nav-item:hover {
+    background: rgba(0,0,0,0.04);
+    color: rgba(0,0,0,0.65);
+  }
 
-[data-theme="light"] .sb-section-label { color: rgba(0,0,0,0.2); }
+  [data-theme="light"] .sb-nav-item.active {
+    background: rgba(124,58,237,0.1);
+    color: #7c3aed;
+    border-color: rgba(124,58,237,0.15);
+  }
 
-[data-theme="light"] .sb-convo-title   { color: rgba(0,0,0,0.4); }
-[data-theme="light"] .sb-convo-item:hover { background: rgba(0,0,0,0.04); }
-[data-theme="light"] .sb-empty-convos  { color: rgba(0,0,0,0.2); }
+  [data-theme="light"] .sb-section-label { color: rgba(0,0,0,0.2); }
 
-[data-theme="light"] .sb-divider { background: rgba(0,0,0,0.06); }
-
-[data-theme="light"] .sb-profile-btn:hover { background: rgba(0,0,0,0.04); }
-[data-theme="light"] .sb-profile-name { color: rgba(0,0,0,0.5); }
-
-[data-theme="light"] .shell-topbar {
-  background: rgba(248,248,252,0.9);
-  border-bottom-color: rgba(0,0,0,0.07);
-}
-
-[data-theme="light"] .topbar-title  { color: rgba(0,0,0,0.5); }
-[data-theme="light"] .topbar-btn {
-  border-color: rgba(0,0,0,0.08);
-  color: rgba(0,0,0,0.35);
-}
-
-[data-theme="light"] .topbar-btn:hover {
-  background: rgba(0,0,0,0.04);
-  color: rgba(0,0,0,0.65);
-}
-
-[data-theme="light"] .hamburger-btn {
-  border-color: rgba(0,0,0,0.08);
-  color: rgba(0,0,0,0.4);
-}
+  [data-theme="light"] .sb-convo-title   { color: rgba(0,0,0,0.4); }
+  [data-theme="light"] .sb-convo-item:hover { background: rgba(0,0,0,0.04); }
+  [data-theme="light"] .sb-convo-item.active { background: rgba(124,58,237,0.08); border-color: rgba(124,58,237,0.12); }
+  [data-theme="light"] .sb-convo-item.active .sb-convo-title { color: rgba(0,0,0,0.65); }
+  [data-theme="light"] .sb-empty-convos  { color: rgba(0,0,0,0.2); }
+  [data-theme="light"] .sb-divider { background: rgba(0,0,0,0.06); }
+  [data-theme="light"] .sb-profile-btn:hover { background: rgba(0,0,0,0.04); }
+  [data-theme="light"] .sb-profile-name { color: rgba(0,0,0,0.5); }
+  [data-theme="light"] .shell-topbar {
+    background: rgba(248,248,252,0.9);
+    border-bottom-color: rgba(0,0,0,0.07);
+  }
+  [data-theme="light"] .topbar-title  { color: rgba(0,0,0,0.5); }
+  [data-theme="light"] .topbar-btn {
+    border-color: rgba(0,0,0,0.08);
+    color: rgba(0,0,0,0.35);
+  }
+  [data-theme="light"] .topbar-btn:hover {
+    background: rgba(0,0,0,0.04);
+    color: rgba(0,0,0,0.65);
+  }
+  [data-theme="light"] .hamburger-btn {
+    border-color: rgba(0,0,0,0.08);
+    color: rgba(0,0,0,0.4);
+  }
+  [data-theme="light"] .hamburger-btn:hover {
+    background: rgba(0,0,0,0.04);
+    color: rgba(0,0,0,0.7);
+  }
+  [data-theme="light"] .convo-menu-btn { color: rgba(0,0,0,0.25); }
+  [data-theme="light"] .convo-menu-btn:hover { color: rgba(0,0,0,0.5); background: rgba(0,0,0,0.04); }
+  [data-theme="light"] .convo-menu-dropdown {
+    background: #ffffff;
+    border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  }
+  [data-theme="light"] .convo-menu-item { color: rgba(0,0,0,0.6); }
+  [data-theme="light"] .convo-menu-item:hover { background: rgba(0,0,0,0.04); }
+  [data-theme="light"] .convo-pin-icon { color: #7c3aed; }
+  [data-theme="light"] .sb-convo-item.pinned .sb-convo-title { color: rgba(0,0,0,0.65); }
+  [data-theme="light"] .rename-input {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(124,58,237,0.4);
+    color: rgba(0,0,0,0.85);
+  }
 
   /* ─── Sidebar ─── */
   .sidebar {
@@ -256,15 +278,25 @@ const STYLES = `
     border-radius: 7px;
     cursor: pointer;
     transition: all 0.15s;
-    white-space: nowrap; overflow: hidden;
     border: 1px solid transparent;
+    position: relative;
   }
 
   .sb-convo-item:hover { background: rgba(255,255,255,0.04); }
+  .sb-convo-item:hover .convo-menu-btn { opacity: 1; }
 
   .sb-convo-item.active {
     background: rgba(124,58,237,0.08);
     border-color: rgba(124,58,237,0.12);
+  }
+
+  .sb-convo-item.pinned {
+    border-left: 2px solid #7c3aed;
+  }
+
+  .sb-convo-item.pinned .sb-convo-title {
+    color: rgba(255,255,255,0.65);
+    font-weight: 600;
   }
 
   .sb-convo-dot {
@@ -273,12 +305,16 @@ const STYLES = `
   }
 
   .sb-convo-item.active .sb-convo-dot { background: #7c3aed; }
+  .sb-convo-item.pinned .sb-convo-dot { background: #7c3aed; }
 
   .sb-convo-title {
     font-size: 12px; font-weight: 500;
     color: rgba(255,255,255,0.35);
     overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap;
     line-height: 1.3;
+    flex: 1;
+    min-width: 0;
   }
 
   .sb-convo-item.active .sb-convo-title { color: rgba(255,255,255,0.65); }
@@ -287,6 +323,100 @@ const STYLES = `
     font-size: 11px; color: rgba(255,255,255,0.12);
     padding: 12px 12px; font-weight: 500;
     white-space: nowrap; overflow: hidden;
+  }
+
+  /* Convo menu (three dots) */
+  .convo-menu-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .convo-menu-btn {
+    width: 22px; height: 22px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.15s;
+    padding: 0;
+  }
+
+  .convo-menu-btn:hover {
+    color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .convo-menu-dropdown {
+    position: fixed;
+    background: #0f0f14;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 4px;
+    min-width: 140px;
+    z-index: 9999;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    animation: menuIn 0.15s ease;
+  }
+
+  @keyframes menuIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .convo-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: all 0.12s;
+    white-space: nowrap;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .convo-menu-item:hover {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.8);
+  }
+
+  .convo-menu-item.danger:hover {
+    background: rgba(239,68,68,0.1);
+    color: #fca5a5;
+  }
+
+  .convo-pin-icon {
+    color: #7c3aed;
+  }
+
+  /* Rename input */
+  .rename-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(124,58,237,0.4);
+    border-radius: 5px;
+    padding: 3px 6px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    color: rgba(255,255,255,0.8);
+    outline: none;
+    width: 100%;
+    font-weight: 500;
+  }
+
+  .rename-input:focus {
+    box-shadow: 0 0 0 2px rgba(124,58,237,0.15);
   }
 
   /* Profile bottom */
@@ -480,8 +610,134 @@ const IconMenu = () => (
   </svg>
 );
 
+const IconThreeDots = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none" />
+    <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+    <circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const IconPin = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2l-5.5 9h11z" />
+    <circle cx="12" cy="17" r="3" />
+    <path d="M9 21h6" />
+  </svg>
+);
+
+const IconPen = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+  </svg>
+);
+
+const IconTrash = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+  </svg>
+);
+
+// ─── Convo Menu Component ────────────────────────────────────────────────────
+function ConvoMenu({ convo, onPin, onRename, onDelete }) {
+  const [open, setOpen] = useState(false);
+  const [renaming, setRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState(convo.title);
+  const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
+  const menuRef = useRef(null);
+  const btnRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target) && !btnRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const handleOpen = (e) => {
+    e.stopPropagation();
+    const rect = btnRef.current.getBoundingClientRect();
+    setMenuPos({
+      top: rect.bottom + 4,
+      left: rect.left - 118 + rect.width // align right edge of menu with right edge of button
+    });
+    setOpen(!open);
+  };
+
+  const handleRename = () => {
+    const trimmed = renameValue.trim();
+    if (trimmed && trimmed !== convo.title) {
+      onRename(convo.id, trimmed);
+    }
+    setRenaming(false);
+  };
+
+  const handleRenameKey = (e) => {
+    if (e.key === "Enter") handleRename();
+    if (e.key === "Escape") setRenaming(false);
+  };
+
+  return (
+    <div className="convo-menu-wrap" ref={menuRef}>
+      <button
+        ref={btnRef}
+        className="convo-menu-btn"
+        onClick={handleOpen}
+      >
+        <IconThreeDots />
+      </button>
+
+      {open && (
+        <div
+          className="convo-menu-dropdown"
+          style={{ top: menuPos.top, left: menuPos.left }}
+        >
+          <button
+            className="convo-menu-item"
+            onClick={(e) => { e.stopPropagation(); onPin(convo.id); setOpen(false); }}
+          >
+            <span className={convo.pinned ? "convo-pin-icon" : ""}>
+              <IconPin />
+            </span>
+            {convo.pinned ? "Unpin" : "Pin"}
+          </button>
+          <button
+            className="convo-menu-item"
+            onClick={(e) => { e.stopPropagation(); setRenaming(true); setOpen(false); }}
+          >
+            <IconPen /> Rename
+          </button>
+          <button
+            className="convo-menu-item danger"
+            onClick={(e) => { e.stopPropagation(); onDelete(convo.id); setOpen(false); }}
+          >
+            <IconTrash /> Delete
+          </button>
+        </div>
+      )}
+
+      {renaming && (
+        <input
+          className="rename-input"
+          value={renameValue}
+          onChange={e => setRenameValue(e.target.value)}
+          onKeyDown={handleRenameKey}
+          onBlur={handleRename}
+          autoFocus
+          onClick={e => e.stopPropagation()}
+        />
+      )}
+    </div>
+  );
+}
+
 // ─── Sidebar content (shared between desktop + mobile drawer) ────────────────
-function SidebarContent({ expanded, conversations, activeConvoId, onNewChat, onSelectConvo, onNavigate, onSignOut, currentPath, profile, onClose }) {
+function SidebarContent({ expanded, conversations, activeConvoId, onNewChat, onSelectConvo, onNavigate, onSignOut, currentPath, profile, onClose, onPinConvo, onRenameConvo, onDeleteConvo }) {
   const navigate = useNavigate();
 
   const NAV = [
@@ -498,6 +754,13 @@ function SidebarContent({ expanded, conversations, activeConvoId, onNewChat, onS
     navigate(path);
     onClose?.();
   };
+
+  // Sort: pinned first, then by date
+  const sortedConvos = [...conversations].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
 
   return (
     <>
@@ -537,16 +800,26 @@ function SidebarContent({ expanded, conversations, activeConvoId, onNewChat, onS
       {/* Conversations */}
       {expanded && <div className="sb-section-label">Recent</div>}
       <div className="sb-convos">
-        {conversations.length === 0
+        {sortedConvos.length === 0
           ? expanded && <div className="sb-empty-convos">No conversations yet</div>
-          : conversations.map(c => (
+          : sortedConvos.map(c => (
             <div
               key={c.id}
-              className={`sb-convo-item ${activeConvoId === c.id ? "active" : ""}`}
+              className={`sb-convo-item ${activeConvoId === c.id ? "active" : ""} ${c.pinned ? "pinned" : ""}`}
               onClick={() => { onSelectConvo(c.id); onClose?.(); }}
             >
               <div className="sb-convo-dot" />
-              {expanded && <div className="sb-convo-title">{c.title}</div>}
+              {expanded && (
+                <>
+                  <div className="sb-convo-title">{c.title}</div>
+                  <ConvoMenu
+                    convo={c}
+                    onPin={onPinConvo}
+                    onRename={onRenameConvo}
+                    onDelete={onDeleteConvo}
+                  />
+                </>
+              )}
             </div>
           ))
         }
@@ -576,6 +849,7 @@ export default function AppShell() {
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -604,7 +878,7 @@ export default function AppShell() {
   const loadConversations = async () => {
     const { data } = await supabase
       .from("conversations")
-      .select("id, title, created_at")
+      .select("id, title, created_at, pinned")
       .order("created_at", { ascending: false })
       .limit(30);
     if (data) setConversations(data);
@@ -613,6 +887,114 @@ export default function AppShell() {
   const handleNewChat = () => {
     setActiveConvoId(null);
     navigate("/");
+  };
+
+  const handleSelectConvo = (convoId) => {
+    setActiveConvoId(convoId);
+    // Always route to chat when a conversation is clicked
+    if (location.pathname !== "/") {
+      navigate("/");
+    }
+  };
+
+  // ─── Chat Summarization ───────────────────────────────────────────────────
+  const summarizeChat = async (convoId) => {
+    try {
+      // Get recent messages
+      const { data: msgs } = await supabase
+        .from("messages")
+        .select("role, content")
+        .eq("conversation_id", convoId)
+        .order("created_at", { ascending: true })
+        .limit(6);
+
+      if (!msgs || msgs.length < 2) return;
+
+      const chatText = msgs.map(m => `${m.role}: ${m.content.slice(0, 200)}`).join("\n");
+
+      // Simple rule-based summarization (no API call needed for common cases)
+      const firstUserMsg = msgs.find(m => m.role === "user")?.content || "";
+      const lower = firstUserMsg.toLowerCase();
+
+      let summary = "";
+
+      // Greeting detection
+      if (/^(hey|hi|hello|what's up|yo|sup|hola|good morning|good afternoon|good evening)/i.test(firstUserMsg)) {
+        summary = "Greeting";
+      }
+      // Idea validation
+      else if (lower.includes("idea") || lower.includes("validate") || lower.includes("think")) {
+        summary = firstUserMsg.slice(0, 35).replace(/^(my |an |the )/i, "").replace(/\?$/, "") + " validation";
+      }
+      // Market research
+      else if (lower.includes("market") || lower.includes("research") || lower.includes("size") || lower.includes("sector")) {
+        summary = firstUserMsg.slice(0, 35).replace(/\?$/, "");
+      }
+      // Strategy
+      else if (lower.includes("strategy") || lower.includes("plan") || lower.includes("how do i")) {
+        summary = firstUserMsg.slice(0, 35).replace(/\?$/, "");
+      }
+      // Default: first 30 chars
+      else {
+        summary = firstUserMsg.slice(0, 30) + (firstUserMsg.length > 30 ? "…" : "");
+      }
+
+      // Clean up
+      summary = summary.trim();
+      if (summary.length < 3) summary = "Chat";
+      if (summary.length > 40) summary = summary.slice(0, 40) + "…";
+
+      // Update in DB
+      await supabase
+        .from("conversations")
+        .update({ title: summary })
+        .eq("id", convoId);
+
+      // Update local state
+      setConversations(prev => prev.map(c =>
+        c.id === convoId ? { ...c, title: summary } : c
+      ));
+
+    } catch (err) {
+      console.error("[SUMMARIZE] Error:", err);
+    }
+  };
+
+  // Summarize when messages change (called from child via context)
+  const triggerSummarize = (convoId) => {
+    // Debounce: wait 3 seconds after last message before summarizing
+    setTimeout(() => summarizeChat(convoId), 3000);
+  };
+
+  // ─── Pin / Rename / Delete ──────────────────────────────────────────────────
+  const handlePinConvo = async (convoId) => {
+    const convo = conversations.find(c => c.id === convoId);
+    if (!convo) return;
+
+    const newPinned = !convo.pinned;
+    await supabase.from("conversations").update({ pinned: newPinned }).eq("id", convoId);
+
+    setConversations(prev => prev.map(c =>
+      c.id === convoId ? { ...c, pinned: newPinned } : c
+    ));
+  };
+
+  const handleRenameConvo = async (convoId, newTitle) => {
+    await supabase.from("conversations").update({ title: newTitle }).eq("id", convoId);
+
+    setConversations(prev => prev.map(c =>
+      c.id === convoId ? { ...c, title: newTitle } : c
+    ));
+  };
+
+  const handleDeleteConvo = async (convoId) => {
+    await supabase.from("conversations").delete().eq("id", convoId);
+
+    setConversations(prev => prev.filter(c => c.id !== convoId));
+    if (activeConvoId === convoId) {
+      setActiveConvoId(null);
+      navigate("/");
+    }
   };
 
   // Hover expand/collapse for desktop sidebar
@@ -641,10 +1023,13 @@ export default function AppShell() {
             conversations={conversations}
             activeConvoId={activeConvoId}
             onNewChat={handleNewChat}
-            onSelectConvo={setActiveConvoId}
+            onSelectConvo={handleSelectConvo}
             currentPath={location.pathname}
             profile={profile}
             onSignOut={signOut}
+            onPinConvo={handlePinConvo}
+            onRenameConvo={handleRenameConvo}
+            onDeleteConvo={handleDeleteConvo}
           />
         </div>
 
@@ -672,11 +1057,14 @@ export default function AppShell() {
                   conversations={conversations}
                   activeConvoId={activeConvoId}
                   onNewChat={handleNewChat}
-                  onSelectConvo={setActiveConvoId}
+                  onSelectConvo={handleSelectConvo}
                   currentPath={location.pathname}
                   profile={profile}
                   onSignOut={signOut}
                   onClose={() => setDrawerOpen(false)}
+                  onPinConvo={handlePinConvo}
+                  onRenameConvo={handleRenameConvo}
+                  onDeleteConvo={handleDeleteConvo}
                 />
               </motion.div>
             </>
@@ -703,7 +1091,12 @@ export default function AppShell() {
 
           {/* Page content */}
           <div className="shell-content">
-            <Outlet context={{ activeConvoId, setActiveConvoId, loadConversations }} />
+            <Outlet context={{
+              activeConvoId,
+              setActiveConvoId,
+              loadConversations,
+              triggerSummarize
+            }} />
           </div>
 
         </div>
