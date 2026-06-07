@@ -968,36 +968,18 @@ export default function SurveyResponses({ survey, onResponseCountUpdate }) {
     setAshaLoading(true);
 
     try {
-      const surveyContext = buildSurveyContext();
-      const history = ashaMessages.map(m => ({ role: m.role, content: m.content }));
 
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const res = await fetch("/api/analyse", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          temperature: 0.5,
-          max_tokens: 800,
-          messages: [
-            {
-              role: "system",
-              content: `You are Asha, an AI research assistant made by Mexuri. You help African founders understand their survey data.
-
-${surveyContext}
-
-Analyse this data to answer the founder's questions. Be concise, specific, and insight-driven. Use markdown where helpful. If there are no responses yet, say so and suggest how to get them.`,
-            },
-            ...history,
-            { role: "user", content: trimmed },
-          ],
+          messages: [...ashaMessages.map(m => ({ role: m.role, content: m.content })), { role: "user", content: trimmed }],
+          surveyContext: buildSurveyContext(),
         }),
       });
 
       const data = await res.json();
-      const reply = data.choices?.[0]?.message?.content || "I couldn't analyse the data right now.";
+      const reply = data.reply || "I couldn't analyse the data right now.";
       setAshaMessages(prev => [...prev, { role: "assistant", content: reply }]);
 
     } catch (err) {
