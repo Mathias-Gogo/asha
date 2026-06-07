@@ -270,233 +270,238 @@ const STYLES = `
 `;
 
 export default function PublicSurvey() {
-    const { id } = useParams();
-    const [survey, setSurvey] = useState(null);
-    const [answers, setAnswers] = useState({});
-    const [status, setStatus] = useState("loading"); // loading | active | closed | submitted | error
-    const [submitting, setSubmitting] = useState(false);
+  const { id } = useParams();
+  const [survey, setSurvey] = useState(null);
+  const [answers, setAnswers] = useState({});
+  const [status, setStatus] = useState("loading"); // loading | active | closed | submitted | error
+  const [submitting, setSubmitting] = useState(false);
 
-    useEffect(() => { loadSurvey(); }, [id]);
+  useEffect(() => { loadSurvey(); }, [id]);
 
-    const loadSurvey = async () => {
-        const { data, error } = await supabase
-            .from("surveys")
-            .select("id, title, description, questions, is_active")
-            .eq("id", id)
-            .single();
+  const loadSurvey = async () => {
+    const { data, error } = await supabase
+      .from("surveys")
+      .select("id, title, description, questions, is_active")
+      .eq("id", id)
+      .single();
 
-        if (error || !data) { setStatus("error"); return; }
-        setSurvey(data);
-        setStatus(data.is_active ? "active" : "closed");
-    };
+    if (error) {
+      // PGRST116 = row not found (could be draft blocked by RLS, or genuinely missing)
+      setStatus(error.code === "PGRST116" ? "closed" : "error");
+      return;
+    }
 
-    const setAnswer = (qId, value) => {
-        setAnswers(prev => ({ ...prev, [qId]: value }));
-    };
+    setSurvey(data);
+    setStatus(data.is_active ? "active" : "closed");
+  };
 
-    const toggleMultiChoice = (qId, option) => {
-        setAnswers(prev => {
-            const current = prev[qId] || [];
-            const exists = current.includes(option);
-            return {
-                ...prev,
-                [qId]: exists
-                    ? current.filter(o => o !== option)
-                    : [...current, option],
-            };
-        });
-    };
+  const setAnswer = (qId, value) => {
+    setAnswers(prev => ({ ...prev, [qId]: value }));
+  };
 
-    const allAnswered = () => {
-        if (!survey?.questions) return false;
-        return survey.questions.every(q => {
-            const ans = answers[q.id];
-            if (q.type === "text") return ans?.trim?.();
-            if (q.type === "rating") return ans !== undefined;
-            if (q.type === "single_choice") return ans !== undefined;
-            if (q.type === "multi_choice") return Array.isArray(ans) && ans.length > 0;
-            return true;
-        });
-    };
+  const toggleMultiChoice = (qId, option) => {
+    setAnswers(prev => {
+      const current = prev[qId] || [];
+      const exists = current.includes(option);
+      return {
+        ...prev,
+        [qId]: exists
+          ? current.filter(o => o !== option)
+          : [...current, option],
+      };
+    });
+  };
 
-    const answeredCount = survey?.questions?.filter(q => {
-        const ans = answers[q.id];
-        if (q.type === "text") return ans?.trim?.();
-        if (q.type === "multi_choice") return Array.isArray(ans) && ans.length > 0;
-        return ans !== undefined;
-    }).length || 0;
+  const allAnswered = () => {
+    if (!survey?.questions) return false;
+    return survey.questions.every(q => {
+      const ans = answers[q.id];
+      if (q.type === "text") return ans?.trim?.();
+      if (q.type === "rating") return ans !== undefined;
+      if (q.type === "single_choice") return ans !== undefined;
+      if (q.type === "multi_choice") return Array.isArray(ans) && ans.length > 0;
+      return true;
+    });
+  };
 
-    const totalCount = survey?.questions?.length || 0;
-    const progressPct = totalCount > 0 ? Math.round((answeredCount / totalCount) * 100) : 0;
+  const answeredCount = survey?.questions?.filter(q => {
+    const ans = answers[q.id];
+    if (q.type === "text") return ans?.trim?.();
+    if (q.type === "multi_choice") return Array.isArray(ans) && ans.length > 0;
+    return ans !== undefined;
+  }).length || 0;
 
-    const submit = async () => {
-        if (!allAnswered() || submitting) return;
-        setSubmitting(true);
-        const { error } = await supabase
-            .from("survey_responses")
-            .insert({ survey_id: survey.id, answers });
+  const totalCount = survey?.questions?.length || 0;
+  const progressPct = totalCount > 0 ? Math.round((answeredCount / totalCount) * 100) : 0;
 
-        if (error) {
-            console.error(error);
-            setSubmitting(false);
-            return;
-        }
-        setStatus("submitted");
-    };
+  const submit = async () => {
+    if (!allAnswered() || submitting) return;
+    setSubmitting(true);
+    const { error } = await supabase
+      .from("survey_responses")
+      .insert({ survey_id: survey.id, answers });
 
-    return (
-        <>
-            <style>{STYLES}</style>
-            <div className="ps-wrap">
-                <div className="ps-bg-orb-1" />
-                <div className="ps-bg-orb-2" />
+    if (error) {
+      console.error(error);
+      setSubmitting(false);
+      return;
+    }
+    setStatus("submitted");
+  };
 
-                {/* Header */}
-                <div className="ps-header">
-                    <div className="ps-logo-mark">A</div>
-                    <div className="ps-logo-text">Asha · by Mexuri</div>
-                </div>
+  return (
+    <>
+      <style>{STYLES}</style>
+      <div className="ps-wrap">
+        <div className="ps-bg-orb-1" />
+        <div className="ps-bg-orb-2" />
 
-                {/* Loading */}
-                {status === "loading" && (
-                    <div className="ps-center">
-                        <div className="ps-state-sub">Loading survey…</div>
-                    </div>
-                )}
+        {/* Header */}
+        <div className="ps-header">
+          <div className="ps-logo-mark">A</div>
+          <div className="ps-logo-text">Asha · by Mexuri</div>
+        </div>
 
-                {/* Error */}
-                {status === "error" && (
-                    <div className="ps-center">
-                        <div className="ps-state-icon">🔍</div>
-                        <div className="ps-state-title">Survey not found</div>
-                        <div className="ps-state-sub">This survey doesn't exist or the link may be incorrect.</div>
-                    </div>
-                )}
+        {/* Loading */}
+        {status === "loading" && (
+          <div className="ps-center">
+            <div className="ps-state-sub">Loading survey…</div>
+          </div>
+        )}
 
-                {/* Closed */}
-                {status === "closed" && (
-                    <div className="ps-center">
-                        <div className="ps-state-icon">🔒</div>
-                        <div className="ps-state-title">Survey closed</div>
-                        <div className="ps-state-sub">This survey is no longer accepting responses.</div>
-                    </div>
-                )}
+        {/* Error */}
+        {status === "error" && (
+          <div className="ps-center">
+            <div className="ps-state-icon">🔍</div>
+            <div className="ps-state-title">Survey not found</div>
+            <div className="ps-state-sub">This survey doesn't exist or the link may be incorrect.</div>
+          </div>
+        )}
 
-                {/* Submitted */}
-                {status === "submitted" && (
-                    <div className="ps-center">
-                        <div className="ps-state-icon">✅</div>
-                        <div className="ps-state-title">Thanks for responding!</div>
-                        <div className="ps-state-sub">Your feedback has been recorded. It will help shape a better product.</div>
-                    </div>
-                )}
+        {/* Closed */}
+        {status === "closed" && (
+          <div className="ps-center">
+            <div className="ps-state-icon">🔒</div>
+            <div className="ps-state-title">Survey closed</div>
+            <div className="ps-state-sub">This survey is no longer accepting responses.</div>
+          </div>
+        )}
 
-                {/* Active survey */}
-                {status === "active" && survey && (
-                    <div className="ps-content">
-                        <div className="ps-survey-header">
-                            <div className="ps-survey-title">{survey.title}</div>
-                            {survey.description && (
-                                <div className="ps-survey-desc">{survey.description}</div>
-                            )}
-                        </div>
+        {/* Submitted */}
+        {status === "submitted" && (
+          <div className="ps-center">
+            <div className="ps-state-icon">✅</div>
+            <div className="ps-state-title">Thanks for responding!</div>
+            <div className="ps-state-sub">Your feedback has been recorded. It will help shape a better product.</div>
+          </div>
+        )}
 
-                        {/* Progress */}
-                        <div className="ps-progress-wrap">
-                            <div className="ps-progress-bar" style={{ width: `${progressPct}%` }} />
-                        </div>
-
-                        <div className="ps-questions">
-                            {(survey.questions || []).map((q, i) => (
-                                <div key={q.id || i} className="ps-question-block">
-                                    <div className="ps-q-label">Question {i + 1}</div>
-                                    <div className="ps-q-text">{q.text}</div>
-
-                                    {q.type === "text" && (
-                                        <textarea
-                                            className="ps-text-input"
-                                            placeholder="Your answer…"
-                                            value={answers[q.id] || ""}
-                                            onChange={e => setAnswer(q.id, e.target.value)}
-                                        />
-                                    )}
-
-                                    {q.type === "rating" && (
-                                        <div>
-                                            <div className="ps-rating-row">
-                                                {[1, 2, 3, 4, 5].map(n => (
-                                                    <button
-                                                        key={n}
-                                                        className={`ps-rating-btn ${answers[q.id] === n ? "selected" : ""}`}
-                                                        onClick={() => setAnswer(q.id, n)}
-                                                    >
-                                                        {n}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                            <div className="ps-rating-labels">
-                                                <span>Low</span>
-                                                <span>High</span>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {q.type === "single_choice" && (
-                                        <div className="ps-options">
-                                            {(q.options || []).map((opt, oi) => (
-                                                <div
-                                                    key={oi}
-                                                    className={`ps-option ${answers[q.id] === opt ? "selected" : ""}`}
-                                                    onClick={() => setAnswer(q.id, opt)}
-                                                >
-                                                    <div className="ps-option-indicator">
-                                                        <div className="ps-option-check" />
-                                                    </div>
-                                                    <div className="ps-option-text">{opt}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    {q.type === "multi_choice" && (
-                                        <div className="ps-options">
-                                            {(q.options || []).map((opt, oi) => {
-                                                const selected = (answers[q.id] || []).includes(opt);
-                                                return (
-                                                    <div
-                                                        key={oi}
-                                                        className={`ps-option multi ${selected ? "selected" : ""}`}
-                                                        onClick={() => toggleMultiChoice(q.id, opt)}
-                                                    >
-                                                        <div className="ps-option-indicator">
-                                                            <div className="ps-option-check" />
-                                                        </div>
-                                                        <div className="ps-option-text">{opt}</div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="ps-submit-wrap">
-                            <button
-                                className="ps-submit-btn"
-                                onClick={submit}
-                                disabled={!allAnswered() || submitting}
-                            >
-                                {submitting ? "Submitting…" : "Submit responses →"}
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                <div className="ps-footer">
-                    Powered by <a href="https://mexuri.com" target="_blank" rel="noreferrer">Asha · Mexuri</a>
-                </div>
+        {/* Active survey */}
+        {status === "active" && survey && (
+          <div className="ps-content">
+            <div className="ps-survey-header">
+              <div className="ps-survey-title">{survey.title}</div>
+              {survey.description && (
+                <div className="ps-survey-desc">{survey.description}</div>
+              )}
             </div>
-        </>
-    );
+
+            {/* Progress */}
+            <div className="ps-progress-wrap">
+              <div className="ps-progress-bar" style={{ width: `${progressPct}%` }} />
+            </div>
+
+            <div className="ps-questions">
+              {(survey.questions || []).map((q, i) => (
+                <div key={q.id || i} className="ps-question-block">
+                  <div className="ps-q-label">Question {i + 1}</div>
+                  <div className="ps-q-text">{q.text}</div>
+
+                  {q.type === "text" && (
+                    <textarea
+                      className="ps-text-input"
+                      placeholder="Your answer…"
+                      value={answers[q.id] || ""}
+                      onChange={e => setAnswer(q.id, e.target.value)}
+                    />
+                  )}
+
+                  {q.type === "rating" && (
+                    <div>
+                      <div className="ps-rating-row">
+                        {[1, 2, 3, 4, 5].map(n => (
+                          <button
+                            key={n}
+                            className={`ps-rating-btn ${answers[q.id] === n ? "selected" : ""}`}
+                            onClick={() => setAnswer(q.id, n)}
+                          >
+                            {n}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="ps-rating-labels">
+                        <span>Low</span>
+                        <span>High</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {q.type === "single_choice" && (
+                    <div className="ps-options">
+                      {(q.options || []).map((opt, oi) => (
+                        <div
+                          key={oi}
+                          className={`ps-option ${answers[q.id] === opt ? "selected" : ""}`}
+                          onClick={() => setAnswer(q.id, opt)}
+                        >
+                          <div className="ps-option-indicator">
+                            <div className="ps-option-check" />
+                          </div>
+                          <div className="ps-option-text">{opt}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {q.type === "multi_choice" && (
+                    <div className="ps-options">
+                      {(q.options || []).map((opt, oi) => {
+                        const selected = (answers[q.id] || []).includes(opt);
+                        return (
+                          <div
+                            key={oi}
+                            className={`ps-option multi ${selected ? "selected" : ""}`}
+                            onClick={() => toggleMultiChoice(q.id, opt)}
+                          >
+                            <div className="ps-option-indicator">
+                              <div className="ps-option-check" />
+                            </div>
+                            <div className="ps-option-text">{opt}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="ps-submit-wrap">
+              <button
+                className="ps-submit-btn"
+                onClick={submit}
+                disabled={!allAnswered() || submitting}
+              >
+                {submitting ? "Submitting…" : "Submit responses →"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="ps-footer">
+          Powered by <a href="https://mexuri.com" target="_blank" rel="noreferrer">Asha · Mexuri</a>
+        </div>
+      </div>
+    </>
+  );
 }
