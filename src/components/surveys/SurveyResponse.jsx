@@ -421,11 +421,12 @@ const STYLES = `
     width: 100%;
   }
 
-  .chart-body.split {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-  }
+ .chart-body.split {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  min-width: 0;
+}
 
   .chart-donut {
     flex: 0 0 160px;
@@ -433,11 +434,12 @@ const STYLES = `
   }
 
   .chart-legend {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
   .legend-item {
     display: flex;
@@ -632,6 +634,47 @@ const STYLES = `
   }
 
   [data-theme="light"] .view-toggle-btn.active { color: #7c3aed; }
+
+  /* ── Responsive chart fixes ── */
+@media (max-width: 900px) {
+  .sr-right {
+    width: 260px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sr-right {
+    display: none;
+  }
+
+  .chart-body.split {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .chart-donut {
+    width: 100%;
+    flex: none;
+    height: 180px;
+  }
+
+  .chart-legend {
+    width: 100%;
+  }
+
+  .legend-name {
+    white-space: normal;
+  }
+
+  .charts-dashboard {
+    padding: 14px 12px;
+  }
+
+  .chart-wrap {
+    padding: 14px;
+  }
+}
 `;
 
 const CHART_COLORS = [
