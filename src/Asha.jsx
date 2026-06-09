@@ -1740,19 +1740,6 @@ export default function Asha() {
               <IconAttach />
             </button>
 
-            {/* Feature 2: Mic button */}
-            {micSupported && (
-              <button
-                className={`voice-btn${listening ? " listening" : ""}`}
-                onClick={listening ? stopListening : startListening}
-                disabled={loading}
-                title={listening ? "Stop listening" : "Voice input"}
-                type="button"
-              >
-                {listening ? <IconMicOff /> : <IconMic />}
-              </button>
-            )}
-
             <textarea
               ref={textareaRef}
               rows={1}
@@ -1772,6 +1759,19 @@ export default function Asha() {
                 type="button"
               >
                 <IconVolumeOff />
+              </button>
+            )}
+
+            {/* Feature 2: Mic button — right side, immediately before send */}
+            {micSupported && (
+              <button
+                className={`voice-btn${listening ? " listening" : ""}`}
+                onClick={listening ? stopListening : startListening}
+                disabled={loading}
+                title={listening ? "Stop listening" : "Voice input"}
+                type="button"
+              >
+                {listening ? <IconMicOff /> : <IconMic />}
               </button>
             )}
 
