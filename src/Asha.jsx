@@ -1401,6 +1401,9 @@ export default function Asha() {
   const [showSurveyButton, setShowSurveyButton] = useState(false);
   const [surveyDraftData, setSurveyDraftData] = useState(null);
 
+  // Voice mode: true only when the current message originated from mic input
+  const [isVoiceMode, setIsVoiceMode] = useState(false);
+
   // ── Feature 1: Restore last conversation on mount ────────────────────────
   useEffect(() => {
     const saved = loadActiveConvoId();
@@ -1417,10 +1420,12 @@ export default function Asha() {
   }, [activeConvoId]);
 
   // ── Feature 2: Voice input ───────────────────────────────────────────────
+  const sendMessageRef = useRef(null);
+
   const handleVoiceTranscript = useCallback((transcript) => {
-    setInput(prev => prev ? `${prev} ${transcript}` : transcript);
-    // Focus the textarea after transcript arrives
-    setTimeout(() => textareaRef.current?.focus(), 50);
+    setIsVoiceMode(true);
+    // Auto-send the transcript immediately (ChatGPT Voice Mode behaviour)
+    sendMessageRef.current?.(transcript);
   }, []);
 
   const { listening, supported: micSupported, startListening, stopListening } =
@@ -1758,8 +1763,8 @@ export default function Asha() {
       const reply = data.reply || "Something went wrong.";
       await saveMessage(convoId, "assistant", reply);
       setMessages([...updated, { role: "assistant", content: reply }]);
-      // Feature 3: speak the reply
-      if (ttsSupported && reply !== "Something went wrong.") {
+      // Feature 3: speak the reply only when message originated from mic input
+      if (isVoiceMode && ttsSupported && reply !== "Something went wrong.") {
         speak(reply);
       }
       setLoading(false);
@@ -1771,7 +1776,13 @@ export default function Asha() {
     }
   };
 
-  const send = () => sendMessage(input);
+  // Keep ref current so handleVoiceTranscript can call sendMessage without stale closure
+  sendMessageRef.current = sendMessage;
+
+  const send = () => {
+    setIsVoiceMode(false);
+    sendMessage(input);
+  };
 
   const onKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
