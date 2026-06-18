@@ -8,6 +8,7 @@ import Chat from "./pages/Chat";
 import Settings from "./pages/Settings";
 import Surveys from "./pages/Surveys";
 import PublicSurvey from "./pages/PublicSurvey";
+import AnalysisReport from "./pages/AnalysisReport";  // ← NEW
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           <Route index element={<Chat />} />
           <Route path="settings" element={<Settings />} />
           <Route path="surveys" element={<Surveys />} />
+          <Route path="surveys/:surveyId/analysis" element={<AnalysisReport />} />  {/* ← NEW */}
         </Route>
       </Routes>
     </>
