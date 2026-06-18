@@ -195,7 +195,202 @@ const STYLES = `
   @media (max-width: 640px) {
     .sf-inner { padding: 20px 14px 60px; }
     .sf-question { padding: 16px; }
+    .sf-header { flex-direction: column; }
+    .sf-publish-btn, .sf-unpublish-btn { width: 100%; }
   }
+
+  /* ── Header ── */
+  .sf-header {
+    display: flex; align-items: flex-start; gap: 16px;
+    margin-bottom: 28px; flex-wrap: wrap;
+  }
+
+  .sf-title-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+
+  .sf-title-input {
+    width: 100%; background: var(--surface);
+    border: 1.5px solid var(--border); border-radius: 12px;
+    padding: 12px 16px; font-family: inherit;
+    font-size: 20px; font-weight: 800; color: var(--fg);
+    outline: none; letter-spacing: -0.03em;
+    transition: border-color 0.2s;
+  }
+  .sf-title-input:focus { border-color: rgba(255,107,53,0.45); box-shadow: 0 0 0 3px rgba(255,107,53,0.08); }
+  .sf-title-input::placeholder { color: var(--fg-3); font-weight: 500; }
+
+  .sf-desc-input {
+    width: 100%; background: var(--surface-2);
+    border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; font-family: inherit;
+    font-size: 13.5px; color: var(--fg-2); resize: none;
+    outline: none; transition: border-color 0.2s; line-height: 1.55;
+  }
+  .sf-desc-input:focus { border-color: rgba(255,107,53,0.40); background: var(--surface); }
+  .sf-desc-input::placeholder { color: var(--fg-3); }
+
+  .sf-publish-btn {
+    padding: 11px 22px; border-radius: 11px; border: none; flex-shrink: 0;
+    background: linear-gradient(135deg, #ff6b35, #ff4fd8);
+    color: white; font-family: inherit; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+    box-shadow: 0 2px 14px rgba(255,107,53,0.30); white-space: nowrap;
+  }
+  .sf-publish-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 22px rgba(255,107,53,0.45); }
+  .sf-publish-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .sf-unpublish-btn {
+    padding: 11px 22px; border-radius: 11px; flex-shrink: 0;
+    background: var(--surface); border: 1.5px solid var(--border);
+    color: var(--fg-2); font-family: inherit; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .sf-unpublish-btn:hover:not(:disabled) { border-color: rgba(239,68,68,0.30); color: #dc2626; }
+
+  /* ── Live link bar ── */
+  .sf-link-bar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: rgba(16,185,129,0.07); border: 1.5px solid rgba(16,185,129,0.25);
+    border-radius: 12px; padding: 12px 16px; margin-bottom: 24px;
+  }
+
+  .sf-link-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--emerald); flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(16,185,129,0.20);
+    animation: livePulse 2s infinite;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(16,185,129,0.20); }
+    50% { box-shadow: 0 0 0 6px rgba(16,185,129,0.08); }
+  }
+
+  .sf-link-text {
+    flex: 1; font-size: 12.5px; color: var(--fg-2); font-weight: 500;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+
+  .sf-link-url {
+    font-size: 12px; font-weight: 700; color: var(--emerald);
+    background: rgba(16,185,129,0.10); padding: 2px 10px;
+    border-radius: 6px; word-break: break-all;
+  }
+
+  .sf-copy-link-btn {
+    padding: 7px 16px; border-radius: 8px; border: 1.5px solid rgba(16,185,129,0.30);
+    background: transparent; color: var(--emerald);
+    font-family: inherit; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+  }
+  .sf-copy-link-btn:hover { background: rgba(16,185,129,0.10); }
+  .sf-copy-link-btn.copied { background: var(--emerald); color: white; border-color: var(--emerald); }
+
+  /* ── Question card (new classes) ── */
+  .sf-question-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 16px; padding: 18px 20px;
+    box-shadow: var(--shadow-sm); transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .sf-question-card:hover { border-color: rgba(255,107,53,0.20); box-shadow: var(--shadow-md); }
+
+  .sf-q-top {
+    display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px;
+  }
+
+  .sf-q-number {
+    font-size: 11px; font-weight: 800; color: var(--orange);
+    background: var(--orange-dim); padding: 4px 9px; border-radius: 100px;
+    border: 1px solid rgba(255,107,53,0.18); flex-shrink: 0; margin-top: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  .sf-q-text-input {
+    flex: 1; background: var(--surface-2); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 9px 13px;
+    font-family: inherit; font-size: 13.5px; font-weight: 600; color: var(--fg);
+    outline: none; resize: none; line-height: 1.5;
+    transition: border-color 0.2s;
+    min-height: 42px;
+  }
+  .sf-q-text-input:focus { border-color: rgba(255,107,53,0.40); background: var(--surface); }
+
+  .sf-q-type-badge {
+    flex-shrink: 0; padding: 5px 11px; border-radius: 100px;
+    background: var(--surface-2); border: 1.5px solid var(--border);
+    font-size: 11px; font-weight: 700; color: var(--fg-2);
+    white-space: nowrap; margin-top: 2px;
+  }
+
+  .sf-q-delete {
+    width: 30px; height: 30px; border-radius: 8px; border: none;
+    background: transparent; color: var(--fg-3); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0; margin-top: 2px;
+  }
+  .sf-q-delete:hover { background: rgba(239,68,68,0.08); color: #dc2626; }
+  .sf-q-delete svg { width: 15px; height: 15px; }
+
+  /* ── Options ── */
+  .sf-q-options { display: flex; flex-direction: column; gap: 7px; padding-left: 4px; }
+
+  .sf-q-option { display: flex; align-items: center; gap: 8px; }
+
+  .sf-q-option-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: linear-gradient(135deg, #ff6b35, #ff4fd8); flex-shrink: 0;
+  }
+
+  .sf-q-option-input {
+    flex: 1; background: var(--surface-2); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 7px 12px;
+    font-family: inherit; font-size: 13px; color: var(--fg); outline: none;
+    transition: border-color 0.2s;
+  }
+  .sf-q-option-input:focus { border-color: rgba(255,107,53,0.40); background: var(--surface); }
+
+  .sf-q-option-delete {
+    width: 26px; height: 26px; border-radius: 7px; border: none;
+    background: transparent; color: var(--fg-3); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .sf-q-option-delete:hover { background: rgba(239,68,68,0.08); color: #dc2626; }
+  .sf-q-option-delete svg { width: 13px; height: 13px; }
+
+  .sf-q-add-option {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: transparent; border: 1.5px dashed var(--border);
+    border-radius: 8px; padding: 7px 14px;
+    font-family: inherit; font-size: 12.5px; font-weight: 600;
+    color: var(--fg-3); cursor: pointer; transition: all 0.18s; margin-top: 2px;
+    width: fit-content;
+  }
+  .sf-q-add-option:hover { border-color: rgba(255,107,53,0.30); color: var(--orange); background: var(--orange-dim); }
+
+  /* ── Rating preview ── */
+  .sf-rating-dot {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: var(--surface-2); border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--fg-3);
+  }
+
+  /* ── Add question row ── */
+  .sf-add-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+
+  .sf-add-btn {
+    padding: 8px 16px; border-radius: 9px;
+    background: var(--surface); border: 1.5px dashed var(--border);
+    font-family: inherit; font-size: 12px; font-weight: 700;
+    color: var(--fg-3); cursor: pointer; transition: all 0.18s;
+  }
+  .sf-add-btn:hover {
+    border-color: rgba(255,107,53,0.30); color: var(--orange);
+    background: var(--orange-dim); border-style: solid;
+  }
+
 `;
 
 const IconTrash = () => (
@@ -335,7 +530,7 @@ export default function SurveyForm({ survey, onUpdate }) {
 
   return (
     <>
-      <style>{STYLES}</style>
+      <><link rel="preconnect" href="https://fonts.googleapis.com" /><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" /></><style>{STYLES}</style>
       <div className="sf-wrap">
         <div className="sf-inner">
 

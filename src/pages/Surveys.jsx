@@ -547,44 +547,15 @@ export default function Surveys() {
     if (!ideaText.trim()) return;
     setGenerating(true);
     try {
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const res = await fetch("/api/survey-draft", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
-          temperature: 0.6,
-          max_tokens: 1024,
-          messages: [
-            {
-              role: "system",
-              content: `You are a market research expert. Generate a survey to validate a business idea.
-
-Respond ONLY with valid JSON, no other text:
-{
-  "title": "Short survey title (max 40 chars)",
-  "description": "One sentence shown to respondents",
-  "questions": [
-    { "id": "q1", "type": "text", "text": "Question here" },
-    { "id": "q2", "type": "single_choice", "text": "Question here", "options": ["A","B","C"] },
-    { "id": "q3", "type": "rating", "text": "Rate X (1=low, 5=high)" },
-    { "id": "q4", "type": "multi_choice", "text": "Which apply?", "options": ["A","B","C"] }
-  ]
-}
-
-Generate 6-8 questions. Mix types. Focus on validating the idea and uncovering pain points.`,
-            },
-            { role: "user", content: `Business idea: ${ideaText}` },
-          ],
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea: ideaText.trim() }),
       });
 
       const data = await res.json();
-      const raw = data.choices?.[0]?.message?.content || "";
-      const clean = raw.replace(/```json|```/g, "").trim();
-      const parsed = JSON.parse(clean);
+      if (data.error) throw new Error(data.error);
+      const parsed = data.survey;
 
       const { data: saved, error } = await supabase
         .from("surveys")
@@ -594,7 +565,7 @@ Generate 6-8 questions. Mix types. Focus on validating the idea and uncovering p
           description: parsed.description,
           questions: parsed.questions,
           is_active: false,
-          business_idea: ideaText.trim(),
+
         })
         .select("id, title, is_active, created_at")
         .single();

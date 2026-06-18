@@ -3,278 +3,272 @@ import { useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: #06060a;
-    font-family: 'Montserrat', sans-serif;
-    min-height: 100vh;
-  }
+  *, *::before, *::after { box-sizing: border-box; }
 
   .ps-wrap {
     min-height: 100vh;
-    background: #06060a;
+    background: #e8e9e1;
+    background-image: repeating-linear-gradient(
+      0deg, rgba(0,0,0,0.025) 0px, rgba(0,0,0,0.025) 1px, transparent 1px, transparent 64px
+    );
     display: flex; flex-direction: column;
-    align-items: center;
-    position: relative; overflow: hidden;
+    align-items: center; justify-content: center;
+    font-family: 'Inter', system-ui, sans-serif;
+    padding: 40px 20px;
   }
 
-  /* Background orbs */
-  .ps-bg-orb-1 {
-    position: fixed; width: 600px; height: 600px;
-    border-radius: 50%; pointer-events: none;
-    background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
-    top: -200px; left: -100px; filter: blur(80px);
+  .ps-brand {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 28px;
   }
 
-  .ps-bg-orb-2 {
-    position: fixed; width: 400px; height: 400px;
-    border-radius: 50%; pointer-events: none;
-    background: radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 70%);
-    bottom: -100px; right: -80px; filter: blur(80px);
-  }
-
-  /* Header */
-  .ps-header {
-    width: 100%; padding: 20px 24px;
-    display: flex; align-items: center; gap: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    position: relative; z-index: 2;
-  }
-
-  .ps-logo-mark {
-    width: 28px; height: 28px; border-radius: 7px;
-    background: linear-gradient(135deg, #7c3aed, #38bdf8);
+  .ps-brand-mark {
+    width: 24px; height: 24px; border-radius: 7px;
+    background: linear-gradient(135deg, #ff6b35, #ff4fd8);
     display: flex; align-items: center; justify-content: center;
     font-size: 11px; font-weight: 800; color: white;
-    letter-spacing: -0.5px;
   }
 
-  .ps-logo-text {
-    font-size: 13px; font-weight: 700;
-    color: rgba(255,255,255,0.5); letter-spacing: -0.02em;
-  }
-
-  /* Main content */
-  .ps-content {
-    width: 100%; max-width: 600px;
-    padding: 40px 24px 80px;
-    position: relative; z-index: 2;
-    flex: 1;
-  }
-
-  /* Survey header */
-  .ps-survey-header { margin-bottom: 36px; }
-
-  .ps-survey-title {
-    font-size: 24px; font-weight: 800;
-    color: rgba(255,255,255,0.9);
-    letter-spacing: -0.03em; line-height: 1.2;
-    margin-bottom: 10px;
-  }
-
-  .ps-survey-desc {
-    font-size: 14px; color: rgba(255,255,255,0.35);
-    line-height: 1.65; font-weight: 400;
-  }
-
-  /* Progress bar */
-  .ps-progress-wrap {
-    height: 3px; background: rgba(255,255,255,0.06);
-    border-radius: 2px; margin-bottom: 36px; overflow: hidden;
-  }
-
-  .ps-progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #7c3aed, #38bdf8);
-    border-radius: 2px; transition: width 0.4s ease;
-  }
-
-  /* Questions */
-  .ps-questions { display: flex; flex-direction: column; gap: 24px; }
-
-  .ps-question-block { display: flex; flex-direction: column; gap: 10px; }
-
-  .ps-q-label {
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    color: rgba(124,58,237,0.7);
-  }
-
-  .ps-q-text {
-    font-size: 15px; font-weight: 600;
-    color: rgba(255,255,255,0.85); line-height: 1.4;
+  .ps-brand-text {
+    font-size: 12.5px; font-weight: 700; color: rgba(0,0,0,0.4);
     letter-spacing: -0.01em;
   }
 
-  /* Text input */
-  .ps-text-input {
-    width: 100%; background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px; padding: 12px 16px;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 13px; color: rgba(255,255,255,0.85);
-    resize: none; outline: none; line-height: 1.6;
-    min-height: 90px; transition: border-color 0.2s;
+  .ps-stack {
+    position: relative; width: 100%; max-width: 420px;
   }
 
-  .ps-text-input:focus { border-color: rgba(124,58,237,0.4); }
-  .ps-text-input::placeholder { color: rgba(255,255,255,0.2); }
-
-  /* Rating */
-  .ps-rating-row {
-    display: flex; gap: 8px; flex-wrap: wrap;
+  .ps-stack-layer {
+    position: absolute; inset: 0;
+    background: #ffffff; border-radius: 22px;
   }
 
-  .ps-rating-btn {
-    width: 44px; height: 44px; border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.03);
-    color: rgba(255,255,255,0.5);
-    font-family: 'Montserrat', sans-serif;
-    font-size: 14px; font-weight: 600; cursor: pointer;
-    transition: all 0.15s;
+  .ps-stack-layer.l1 { transform: translateY(10px) scale(0.97); opacity: 0.7; }
+  .ps-stack-layer.l2 { transform: translateY(20px) scale(0.94); opacity: 0.4; }
+
+  .ps-card {
+    position: relative; background: #ffffff;
+    border-radius: 22px; padding: 30px 28px 28px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 12px 32px rgba(0,0,0,0.10);
+    z-index: 2;
   }
 
-  .ps-rating-btn:hover {
-    border-color: rgba(124,58,237,0.4);
-    color: #a78bfa;
-    background: rgba(124,58,237,0.08);
+  .ps-progress-row { display: flex; align-items: center; gap: 6px; margin-bottom: 22px; }
+
+  .ps-progress-seg {
+    flex: 1; height: 4px; border-radius: 3px;
+    background: rgba(0,0,0,0.08); overflow: hidden;
   }
 
-  .ps-rating-btn.selected {
-    background: rgba(124,58,237,0.15);
-    border-color: rgba(124,58,237,0.5);
-    color: #a78bfa;
-    box-shadow: 0 0 0 2px rgba(124,58,237,0.15);
+  .ps-progress-seg-fill {
+    height: 100%; width: 0%; border-radius: 3px;
+    background: #1a1a1a; transition: width 0.3s ease;
   }
 
-  .ps-rating-labels {
-    display: flex; justify-content: space-between;
-    font-size: 10px; color: rgba(255,255,255,0.2);
-    font-weight: 500; margin-top: 4px;
-    padding: 0 2px;
+  .ps-progress-seg.done .ps-progress-seg-fill { width: 100%; }
+  .ps-progress-seg.current .ps-progress-seg-fill { width: 100%; background: linear-gradient(90deg, #ff6b35, #ff4fd8); }
+
+  .ps-q-label {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: rgba(0,0,0,0.32);
+    margin-bottom: 10px;
   }
 
-  /* Choice options */
-  .ps-options { display: flex; flex-direction: column; gap: 8px; }
+  .ps-q-text {
+    font-size: 21px; font-weight: 700; color: #16161a;
+    line-height: 1.28; letter-spacing: -0.02em;
+    margin-bottom: 22px;
+  }
+
+  .ps-select-hint {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: rgba(0,0,0,0.30);
+    margin-bottom: 12px;
+  }
+
+  .ps-options { display: flex; flex-direction: column; gap: 9px; margin-bottom: 6px; }
 
   .ps-option {
     display: flex; align-items: center; gap: 12px;
-    padding: 11px 16px; border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.07);
-    background: rgba(255,255,255,0.03);
+    padding: 13px 15px; border-radius: 12px;
+    border: 1.5px solid rgba(0,0,0,0.10);
+    background: transparent;
     cursor: pointer; transition: all 0.15s;
   }
 
-  .ps-option:hover {
-    border-color: rgba(124,58,237,0.3);
-    background: rgba(124,58,237,0.05);
-  }
+  .ps-option:hover { border-color: rgba(0,0,0,0.22); background: rgba(0,0,0,0.015); }
 
   .ps-option.selected {
-    border-color: rgba(124,58,237,0.5);
-    background: rgba(124,58,237,0.1);
+    border-color: #16161a; background: rgba(0,0,0,0.03);
   }
 
   .ps-option-indicator {
-    width: 16px; height: 16px; border-radius: 50%;
-    border: 1.5px solid rgba(255,255,255,0.15);
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid rgba(0,0,0,0.25);
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0; transition: all 0.15s;
   }
 
-  .ps-option.selected .ps-option-indicator {
-    border-color: #7c3aed;
-    background: #7c3aed;
-  }
+  .ps-option.multi .ps-option-indicator { border-radius: 5px; }
+
+  .ps-option.selected .ps-option-indicator { border-color: #16161a; background: #16161a; }
 
   .ps-option-check {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: white; opacity: 0; transition: opacity 0.15s;
+    width: 8px; height: 8px; border-radius: 50%; background: white;
+    opacity: 0; transition: opacity 0.15s;
   }
 
+  .ps-option.multi .ps-option-check { border-radius: 1.5px; width: 7px; height: 7px; }
   .ps-option.selected .ps-option-check { opacity: 1; }
 
-  /* Multi choice uses square indicator */
-  .ps-option.multi .ps-option-indicator { border-radius: 4px; }
-
   .ps-option-text {
-    font-size: 13px; font-weight: 500;
-    color: rgba(255,255,255,0.6); flex: 1;
+    font-size: 14.5px; font-weight: 500; color: rgba(0,0,0,0.55); flex: 1;
+    line-height: 1.4;
   }
 
-  .ps-option.selected .ps-option-text { color: rgba(255,255,255,0.85); }
+  .ps-option.selected .ps-option-text { color: #16161a; font-weight: 600; }
 
-  /* Submit */
-  .ps-submit-wrap { margin-top: 36px; }
+  .ps-text-input {
+    width: 100%; background: rgba(0,0,0,0.025);
+    border: 1.5px solid rgba(0,0,0,0.10);
+    border-radius: 12px; padding: 14px 16px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14.5px; color: #16161a;
+    resize: none; outline: none; line-height: 1.6;
+    min-height: 110px; transition: border-color 0.2s;
+  }
+
+  .ps-text-input:focus { border-color: rgba(0,0,0,0.30); background: white; }
+  .ps-text-input::placeholder { color: rgba(0,0,0,0.28); }
+
+  .ps-rating-row { display: flex; gap: 8px; margin-bottom: 6px; }
+
+  .ps-rating-btn {
+    flex: 1; height: 50px; border-radius: 12px;
+    border: 1.5px solid rgba(0,0,0,0.10);
+    background: transparent; color: rgba(0,0,0,0.45);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .ps-rating-btn:hover { border-color: rgba(0,0,0,0.25); }
+
+  .ps-rating-btn.selected {
+    background: #16161a; border-color: #16161a; color: white;
+  }
+
+  .ps-rating-labels {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: rgba(0,0,0,0.30);
+    font-weight: 600; margin-top: 8px; padding: 0 2px;
+  }
+
+  .ps-card-footer {
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 14px; margin-top: 26px;
+  }
+
+  .ps-back-btn {
+    background: transparent; border: none;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+    color: rgba(0,0,0,0.45); cursor: pointer; padding: 10px 6px;
+    transition: color 0.15s;
+  }
+  .ps-back-btn:hover { color: rgba(0,0,0,0.75); }
+  .ps-back-btn:disabled { opacity: 0; pointer-events: none; }
+
+  .ps-next-btn {
+    padding: 12px 28px; border-radius: 12px; border: none;
+    background: #a8e890;
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+    color: #16161a; cursor: pointer; transition: all 0.18s;
+  }
+
+  .ps-next-btn:hover:not(:disabled) { background: #93e077; transform: translateY(-1px); }
+  .ps-next-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
   .ps-submit-btn {
-    width: 100%; padding: 14px;
-    background: #7c3aed; border: none; border-radius: 10px;
-    color: white; font-family: 'Montserrat', sans-serif;
-    font-size: 13px; font-weight: 700; cursor: pointer;
-    transition: all 0.2s; letter-spacing: 0.04em;
-    box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+    padding: 12px 30px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, #ff6b35, #ff4fd8);
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700;
+    color: white; cursor: pointer; transition: all 0.18s;
+    box-shadow: 0 4px 18px rgba(255,107,53,0.32);
+  }
+  .ps-submit-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 26px rgba(255,107,53,0.45); }
+  .ps-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .ps-intro-title {
+    font-size: 23px; font-weight: 800; color: #16161a;
+    letter-spacing: -0.03em; line-height: 1.25; margin-bottom: 12px;
   }
 
-  .ps-submit-btn:hover:not(:disabled) {
-    background: #6d28d9;
-    box-shadow: 0 6px 28px rgba(124,58,237,0.5);
-    transform: translateY(-1px);
+  .ps-intro-desc {
+    font-size: 14px; color: rgba(0,0,0,0.45);
+    line-height: 1.65; font-weight: 400; margin-bottom: 26px;
   }
 
-  .ps-submit-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .ps-intro-meta {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 26px;
+    font-size: 12px; color: rgba(0,0,0,0.35); font-weight: 600;
+  }
 
-  /* States */
-  .ps-center {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    text-align: center; gap: 14px; padding: 60px 24px;
-    position: relative; z-index: 2;
+  .ps-intro-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(0,0,0,0.25); }
+
+  .ps-start-btn {
+    width: 100%; padding: 14px; border-radius: 12px; border: none;
+    background: #16161a; color: white;
+    font-family: 'Inter', sans-serif; font-size: 14.5px; font-weight: 700;
+    cursor: pointer; transition: all 0.18s;
+  }
+  .ps-start-btn:hover { background: #2a2a30; transform: translateY(-1px); }
+
+  .ps-state-card {
+    text-align: center; padding: 50px 32px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
   }
 
   .ps-state-icon {
-    width: 56px; height: 56px; border-radius: 16px;
-    background: linear-gradient(135deg, #7c3aed, #38bdf8);
+    width: 52px; height: 52px; border-radius: 16px;
+    background: linear-gradient(135deg, #ff6b35, #ff4fd8);
     display: flex; align-items: center; justify-content: center;
-    font-size: 24px; margin-bottom: 4px;
-    box-shadow: 0 8px 32px rgba(124,58,237,0.35);
+    font-size: 22px; margin-bottom: 4px;
+    box-shadow: 0 8px 28px rgba(255,107,53,0.30);
   }
 
   .ps-state-title {
-    font-size: 20px; font-weight: 800;
-    color: rgba(255,255,255,0.88); letter-spacing: -0.03em;
+    font-size: 19px; font-weight: 800; color: #16161a; letter-spacing: -0.02em;
   }
 
   .ps-state-sub {
-    font-size: 13px; color: rgba(255,255,255,0.3);
-    max-width: 280px; line-height: 1.65; font-weight: 400;
+    font-size: 13.5px; color: rgba(0,0,0,0.40);
+    max-width: 280px; line-height: 1.6; font-weight: 400;
   }
 
-  /* Footer */
   .ps-footer {
-    text-align: center; padding: 20px;
-    font-size: 11px; color: rgba(255,255,255,0.12);
-    font-weight: 500; position: relative; z-index: 2;
-    letter-spacing: 0.04em;
+    text-align: center; margin-top: 24px;
+    font-size: 11px; color: rgba(0,0,0,0.28);
+    font-weight: 500; letter-spacing: 0.03em;
   }
 
-  .ps-footer a {
-    color: rgba(124,58,237,0.5); text-decoration: none;
-  }
+  .ps-footer a { color: rgba(0,0,0,0.40); text-decoration: none; font-weight: 700; }
+  .ps-footer a:hover { color: #16161a; }
 
-  .ps-footer a:hover { color: #a78bfa; }
+  @media (max-width: 480px) {
+    .ps-card { padding: 24px 20px 22px; }
+    .ps-q-text { font-size: 18px; }
+  }
 `;
 
 export default function PublicSurvey() {
   const { id } = useParams();
   const [survey, setSurvey] = useState(null);
   const [answers, setAnswers] = useState({});
-  const [status, setStatus] = useState("loading"); // loading | active | closed | submitted | error
+  const [status, setStatus] = useState("loading");
   const [submitting, setSubmitting] = useState(false);
+  const [step, setStep] = useState(0);
 
   useEffect(() => { loadSurvey(); }, [id]);
 
@@ -286,13 +280,12 @@ export default function PublicSurvey() {
       .single();
 
     if (error) {
-      // PGRST116 = row not found (could be draft blocked by RLS, or genuinely missing)
       setStatus(error.code === "PGRST116" ? "closed" : "error");
       return;
     }
 
     setSurvey(data);
-    setStatus(data.is_active ? "active" : "closed");
+    setStatus(data.is_active ? "intro" : "closed");
   };
 
   const setAnswer = (qId, value) => {
@@ -312,30 +305,30 @@ export default function PublicSurvey() {
     });
   };
 
-  const allAnswered = () => {
-    if (!survey?.questions) return false;
-    return survey.questions.every(q => {
-      const ans = answers[q.id];
-      if (q.type === "text") return ans?.trim?.();
-      if (q.type === "rating") return ans !== undefined;
-      if (q.type === "single_choice") return ans !== undefined;
-      if (q.type === "multi_choice") return Array.isArray(ans) && ans.length > 0;
-      return true;
-    });
+  const questions = survey?.questions || [];
+  const total = questions.length;
+  const currentQ = questions[step];
+
+  const isAnswered = (q) => {
+    if (!q) return false;
+    const ans = answers[q.id];
+    if (q.type === "text") return !!ans?.trim?.();
+    if (q.type === "rating") return ans !== undefined;
+    if (q.type === "single_choice") return ans !== undefined;
+    if (q.type === "multi_choice") return Array.isArray(ans) && ans.length > 0;
+    return true;
   };
 
-  const answeredCount = survey?.questions?.filter(q => {
-    const ans = answers[q.id];
-    if (q.type === "text") return ans?.trim?.();
-    if (q.type === "multi_choice") return Array.isArray(ans) && ans.length > 0;
-    return ans !== undefined;
-  }).length || 0;
+  const goNext = () => {
+    if (step < total - 1) setStep(step + 1);
+  };
 
-  const totalCount = survey?.questions?.length || 0;
-  const progressPct = totalCount > 0 ? Math.round((answeredCount / totalCount) * 100) : 0;
+  const goBack = () => {
+    if (step > 0) setStep(step - 1);
+  };
 
   const submit = async () => {
-    if (!allAnswered() || submitting) return;
+    if (submitting) return;
     setSubmitting(true);
     const { error } = await supabase
       .from("survey_responses")
@@ -349,151 +342,199 @@ export default function PublicSurvey() {
     setStatus("submitted");
   };
 
+  const isLast = step === total - 1;
+
   return (
     <>
       <style>{STYLES}</style>
       <div className="ps-wrap">
-        <div className="ps-bg-orb-1" />
-        <div className="ps-bg-orb-2" />
-
-        {/* Header */}
-        <div className="ps-header">
-          <div className="ps-logo-mark">A</div>
-          <div className="ps-logo-text">Asha · by Mexuri</div>
+        <div className="ps-brand">
+          <div className="ps-brand-mark">A</div>
+          <div className="ps-brand-text">Asha · by Mexuri</div>
         </div>
 
-        {/* Loading */}
         {status === "loading" && (
-          <div className="ps-center">
-            <div className="ps-state-sub">Loading survey…</div>
+          <div className="ps-stack">
+            <div className="ps-card">
+              <div className="ps-state-card">
+                <div className="ps-state-sub">Loading survey…</div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Error */}
         {status === "error" && (
-          <div className="ps-center">
-            <div className="ps-state-icon">🔍</div>
-            <div className="ps-state-title">Survey not found</div>
-            <div className="ps-state-sub">This survey doesn't exist or the link may be incorrect.</div>
+          <div className="ps-stack">
+            <div className="ps-card">
+              <div className="ps-state-card">
+                <div className="ps-state-icon">🔍</div>
+                <div className="ps-state-title">Survey not found</div>
+                <div className="ps-state-sub">This survey doesn't exist or the link may be incorrect.</div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Closed */}
         {status === "closed" && (
-          <div className="ps-center">
-            <div className="ps-state-icon">🔒</div>
-            <div className="ps-state-title">Survey closed</div>
-            <div className="ps-state-sub">This survey is no longer accepting responses.</div>
+          <div className="ps-stack">
+            <div className="ps-card">
+              <div className="ps-state-card">
+                <div className="ps-state-icon">🔒</div>
+                <div className="ps-state-title">Survey closed</div>
+                <div className="ps-state-sub">This survey is no longer accepting responses.</div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Submitted */}
         {status === "submitted" && (
-          <div className="ps-center">
-            <div className="ps-state-icon">✅</div>
-            <div className="ps-state-title">Thanks for responding!</div>
-            <div className="ps-state-sub">Your feedback has been recorded. It will help shape a better product.</div>
+          <div className="ps-stack">
+            <div className="ps-card">
+              <div className="ps-state-card">
+                <div className="ps-state-icon">✅</div>
+                <div className="ps-state-title">Thanks for responding!</div>
+                <div className="ps-state-sub">Your feedback has been recorded. It will help shape a better product.</div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Active survey */}
-        {status === "active" && survey && (
-          <div className="ps-content">
-            <div className="ps-survey-header">
-              <div className="ps-survey-title">{survey.title}</div>
+        {status === "intro" && survey && (
+          <div className="ps-stack">
+            <div className="ps-stack-layer l2" />
+            <div className="ps-stack-layer l1" />
+            <div className="ps-card">
+              <div className="ps-intro-title">{survey.title}</div>
               {survey.description && (
-                <div className="ps-survey-desc">{survey.description}</div>
+                <div className="ps-intro-desc">{survey.description}</div>
               )}
+              <div className="ps-intro-meta">
+                <span>{total} question{total !== 1 ? "s" : ""}</span>
+                <div className="ps-intro-dot" />
+                <span>~{Math.max(1, Math.round(total * 0.4))} min</span>
+              </div>
+              <button className="ps-start-btn" onClick={() => setStatus("active")}>
+                Start survey →
+              </button>
             </div>
+          </div>
+        )}
 
-            {/* Progress */}
-            <div className="ps-progress-wrap">
-              <div className="ps-progress-bar" style={{ width: `${progressPct}%` }} />
-            </div>
+        {status === "active" && survey && currentQ && (
+          <div className="ps-stack">
+            {step < total - 1 && <div className="ps-stack-layer l2" />}
+            {step < total - 1 && <div className="ps-stack-layer l1" />}
+            <div className="ps-card">
 
-            <div className="ps-questions">
-              {(survey.questions || []).map((q, i) => (
-                <div key={q.id || i} className="ps-question-block">
-                  <div className="ps-q-label">Question {i + 1}</div>
-                  <div className="ps-q-text">{q.text}</div>
+              <div className="ps-progress-row">
+                {questions.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`ps-progress-seg ${i < step ? "done" : ""} ${i === step ? "current" : ""}`}
+                  >
+                    <div className="ps-progress-seg-fill" />
+                  </div>
+                ))}
+              </div>
 
-                  {q.type === "text" && (
-                    <textarea
-                      className="ps-text-input"
-                      placeholder="Your answer…"
-                      value={answers[q.id] || ""}
-                      onChange={e => setAnswer(q.id, e.target.value)}
-                    />
-                  )}
+              <div className="ps-q-label">Question {step + 1} of {total}</div>
+              <div className="ps-q-text">{currentQ.text}</div>
 
-                  {q.type === "rating" && (
-                    <div>
-                      <div className="ps-rating-row">
-                        {[1, 2, 3, 4, 5].map(n => (
-                          <button
-                            key={n}
-                            className={`ps-rating-btn ${answers[q.id] === n ? "selected" : ""}`}
-                            onClick={() => setAnswer(q.id, n)}
-                          >
-                            {n}
-                          </button>
-                        ))}
+              {currentQ.type === "text" && (
+                <textarea
+                  className="ps-text-input"
+                  placeholder="Type your answer…"
+                  value={answers[currentQ.id] || ""}
+                  onChange={e => setAnswer(currentQ.id, e.target.value)}
+                  autoFocus
+                />
+              )}
+
+              {currentQ.type === "rating" && (
+                <div>
+                  <div className="ps-rating-row">
+                    {[1, 2, 3, 4, 5].map(n => (
+                      <button
+                        key={n}
+                        className={`ps-rating-btn ${answers[currentQ.id] === n ? "selected" : ""}`}
+                        onClick={() => setAnswer(currentQ.id, n)}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="ps-rating-labels">
+                    <span>Low</span>
+                    <span>High</span>
+                  </div>
+                </div>
+              )}
+
+              {currentQ.type === "single_choice" && (
+                <>
+                  <div className="ps-select-hint">Select only one</div>
+                  <div className="ps-options">
+                    {(currentQ.options || []).map((opt, oi) => (
+                      <div
+                        key={oi}
+                        className={`ps-option ${answers[currentQ.id] === opt ? "selected" : ""}`}
+                        onClick={() => setAnswer(currentQ.id, opt)}
+                      >
+                        <div className="ps-option-indicator">
+                          <div className="ps-option-check" />
+                        </div>
+                        <div className="ps-option-text">{opt}</div>
                       </div>
-                      <div className="ps-rating-labels">
-                        <span>Low</span>
-                        <span>High</span>
-                      </div>
-                    </div>
-                  )}
+                    ))}
+                  </div>
+                </>
+              )}
 
-                  {q.type === "single_choice" && (
-                    <div className="ps-options">
-                      {(q.options || []).map((opt, oi) => (
+              {currentQ.type === "multi_choice" && (
+                <>
+                  <div className="ps-select-hint">Select all that apply</div>
+                  <div className="ps-options">
+                    {(currentQ.options || []).map((opt, oi) => {
+                      const selected = (answers[currentQ.id] || []).includes(opt);
+                      return (
                         <div
                           key={oi}
-                          className={`ps-option ${answers[q.id] === opt ? "selected" : ""}`}
-                          onClick={() => setAnswer(q.id, opt)}
+                          className={`ps-option multi ${selected ? "selected" : ""}`}
+                          onClick={() => toggleMultiChoice(currentQ.id, opt)}
                         >
                           <div className="ps-option-indicator">
                             <div className="ps-option-check" />
                           </div>
                           <div className="ps-option-text">{opt}</div>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      );
+                    })}
+                  </div>
+                </>
+              )}
 
-                  {q.type === "multi_choice" && (
-                    <div className="ps-options">
-                      {(q.options || []).map((opt, oi) => {
-                        const selected = (answers[q.id] || []).includes(opt);
-                        return (
-                          <div
-                            key={oi}
-                            className={`ps-option multi ${selected ? "selected" : ""}`}
-                            onClick={() => toggleMultiChoice(q.id, opt)}
-                          >
-                            <div className="ps-option-indicator">
-                              <div className="ps-option-check" />
-                            </div>
-                            <div className="ps-option-text">{opt}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="ps-submit-wrap">
-              <button
-                className="ps-submit-btn"
-                onClick={submit}
-                disabled={!allAnswered() || submitting}
-              >
-                {submitting ? "Submitting…" : "Submit responses →"}
-              </button>
+              <div className="ps-card-footer">
+                <button className="ps-back-btn" onClick={goBack} disabled={step === 0}>
+                  Back
+                </button>
+                {isLast ? (
+                  <button
+                    className="ps-submit-btn"
+                    onClick={submit}
+                    disabled={!isAnswered(currentQ) || submitting}
+                  >
+                    {submitting ? "Submitting…" : "Submit →"}
+                  </button>
+                ) : (
+                  <button
+                    className="ps-next-btn"
+                    onClick={goNext}
+                    disabled={!isAnswered(currentQ)}
+                  >
+                    Next
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         )}

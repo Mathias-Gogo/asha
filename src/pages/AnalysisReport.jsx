@@ -5,7 +5,7 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -294,6 +294,15 @@ const STYLES = `
   }
 `;
 
+// ─── Helper: filter placeholder evidence ─────────────────────────────────────
+function cleanEvidence(text) {
+    if (!text) return null;
+    // Filter out placeholder-style text from the model
+    if (text.toLowerCase().startsWith('survey question')) return null;
+    if (text.length < 8) return null;
+    return text;
+}
+
 // ─── Helper to render verdict icon ───────────────────────────────────────────
 function verdictIcon(verdict) {
     if (verdict === "continue") return "🚀";
@@ -404,7 +413,7 @@ export default function AnalysisReport() {
     if (status === "loading") {
         return (
             <>
-                <style>{STYLES}</style>
+                <><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" /></><style>{STYLES}</style>
                 <div className="report-wrap">
                     <div className="report-inner">
                         <div className="report-state">
@@ -421,7 +430,7 @@ export default function AnalysisReport() {
     if (status === "running") {
         return (
             <>
-                <style>{STYLES}</style>
+                <><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" /></><style>{STYLES}</style>
                 <div className="report-wrap">
                     <div className="report-inner">
                         <div className="report-state">
@@ -441,7 +450,7 @@ export default function AnalysisReport() {
     if (status === "error") {
         return (
             <>
-                <style>{STYLES}</style>
+                <><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" /></><style>{STYLES}</style>
                 <div className="report-wrap">
                     <div className="report-inner">
                         <button className="report-back" onClick={() => navigate("/surveys")}>
@@ -468,7 +477,7 @@ export default function AnalysisReport() {
 
         return (
             <>
-                <style>{STYLES}</style>
+                <><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" /></><style>{STYLES}</style>
                 <div className="report-wrap">
                     <div className="report-inner">
 
@@ -525,9 +534,9 @@ export default function AnalysisReport() {
                                     <div className="report-card-icon">🎯</div>
                                     <div className="report-card-title">Beachhead Customer</div>
                                 </div>
-                                <div className="report-card-body">{analysis.beachhead_customer?.profile}</div>
-                                {analysis.beachhead_customer?.why && (
-                                    <div className="report-card-sub">{analysis.beachhead_customer.why}</div>
+                                <div className="report-card-body">{analysis.beachhead_customer?.segment}</div>
+                                {analysis.beachhead_customer?.description && (
+                                    <div className="report-card-sub">{analysis.beachhead_customer.description}<br/><em style={{fontSize:'11px',opacity:0.7}}>{analysis.beachhead_customer.why_first}</em></div>
                                 )}
                             </div>
                             <div className="report-card">
@@ -536,8 +545,8 @@ export default function AnalysisReport() {
                                     <div className="report-card-title">Core Problem</div>
                                 </div>
                                 <div className="report-card-body">{analysis.core_problem?.statement}</div>
-                                {analysis.core_problem?.evidence && (
-                                    <div className="report-card-sub">"{analysis.core_problem.evidence}"</div>
+                                {cleanEvidence(analysis.core_problem?.evidence) && (
+                                    <div className="report-card-sub">"{cleanEvidence(analysis.core_problem.evidence)}"</div>
                                 )}
                             </div>
                         </div>
