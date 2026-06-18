@@ -13,6 +13,28 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY
 const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
 
+async function supabaseFetch(path, opts = {}) {
+    const url = SUPABASE_URL + "/rest/v1/" + path;
+    const headers = {
+        "apikey": SUPABASE_SERVICE_KEY,
+        "Authorization": "Bearer " + SUPABASE_SERVICE_KEY,
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    };
+    if (opts.prefer) headers["Prefer"] = opts.prefer;
+    const res = await fetch(url, {
+        method: opts.method || "GET",
+        headers,
+        body: opts.body ? JSON.stringify(opts.body) : undefined
+    });
+    const text = await res.text();
+    console.log("  [supabaseFetch]", opts.method||"GET", path.slice(0,60), "→", res.status, text.slice(0,100));
+    let data = null;
+    try { data = JSON.parse(text); } catch(e) {}
+    if (!res.ok) return { data: null, error: data || { message: res.statusText } };
+    return { data, error: null };
+}
+
 console.log("=== Server Starting ===")
 console.log("GROQ_API_KEY present:", !!GROQ_API_KEY)
 console.log("SUPABASE_URL present:", !!SUPABASE_URL)
@@ -386,8 +408,153 @@ app.post('/api/survey-draft', async (req, res) => {
     }
 });
 
+// ─── Beachhead Analysis ───────────────────────────────────────────────────────
+
+const ANALYSIS_SCHEMA = {
+    type: "object",
+    properties: {
+        beachhead_customer: { type: "object", properties: { segment: { type: "string" }, description: { type: "string" }, why_first: { type: "string" } }, required: ["segment", "description", "why_first"] },
+        core_problem: { type: "object", properties: { statement: { type: "string" }, evidence: { type: "string" }, frequency: { type: "string" } }, required: ["statement", "evidence", "frequency"] },
+        recommended_solution: { type: "object", properties: { what_to_build: { type: "string" }, rationale: { type: "string" }, mvp_scope: { type: "string" } }, required: ["what_to_build", "rationale", "mvp_scope"] },
+        competitive_advantage: { type: "object", properties: { differentiator: { type: "string" }, moat: { type: "string" } }, required: ["differentiator", "moat"] },
+        gtm_plan: { type: "object", properties: { first_100_customers: { type: "string" }, channel: { type: "string" }, hook: { type: "string" } }, required: ["first_100_customers", "channel", "hook"] },
+        risk_assessment: { type: "object", properties: { risks: { type: "array", items: { type: "object", properties: { risk: { type: "string" }, severity: { type: "string", enum: ["high", "medium", "low"] }, mitigation: { type: "string" } }, required: ["risk", "severity", "mitigation"] } } }, required: ["risks"] },
+        final_recommendation: { type: "object", properties: { verdict: { type: "string", enum: ["continue", "pivot", "abandon"] }, reasoning: { type: "string" }, next_step: { type: "string" } }, required: ["verdict", "reasoning", "next_step"] },
+        summary: { type: "object", properties: { primary_segment: { type: "string" }, top_pain_points: { type: "array", items: { type: "string" } }, market_opportunities: { type: "array", items: { type: "string" } }, competitor_weaknesses: { type: "array", items: { type: "string" } }, avg_spending: { type: "string" } }, required: ["primary_segment", "top_pain_points", "market_opportunities", "competitor_weaknesses", "avg_spending"] }
+    },
+    required: ["beachhead_customer", "core_problem", "recommended_solution", "competitive_advantage", "gtm_plan", "risk_assessment", "final_recommendation", "summary"]
+};
+
+const BEACHHEAD_SYSTEM = "You are Asha's strategic analysis engine, built by Mexuri for African founders.\n\nAnalyze survey responses using the Beachhead Strategy framework.\n\nANALYSIS FRAMEWORK:\n1. BEACHHEAD CUSTOMER - Who is the single most winnable customer segment right now?\n2. CORE PROBLEM - What is the most painful, frequent problem this segment faces?\n3. RECOMMENDED SOLUTION - What should the founder build FIRST (MVP only)?\n4. COMPETITIVE ADVANTAGE - What gives this founder an edge others cannot easily copy?\n5. GTM PLAN - How do you get the first 100 customers in the African market?\n6. RISK ASSESSMENT - What are the 2-4 biggest risks from the data?\n7. FINAL RECOMMENDATION - Should the founder CONTINUE, PIVOT, or ABANDON?\n\nRULES:\n- Be ruthlessly specific. Reference actual response patterns.\n- Frame everything for the African market.\n- If no responses yet, base analysis on survey questions only and note this.\n- Be honest. If data shows weak demand, say so.\n\nOUTPUT: Valid JSON only. No markdown, no explanation.";
+
+const ANALYSE_CHAT_SYSTEM = "You are Asha, a sharp AI co-founder built by Mexuri for African founders. You have full context of a validation survey and all its responses. Answer questions about the data concisely and specifically. Reference actual patterns. Be direct, not generic.";
+
+function buildAnalyseContext(survey, responses) {
+    const questions = survey.questions || [];
+    let ctx = "SURVEY: \"" + survey.title + "\"\n";
+    if (survey.description) ctx += "Description: " + survey.description + "\n";
+    ctx += "\nQUESTIONS:\n";
+    questions.forEach((q, i) => {
+        ctx += (i + 1) + ". [" + q.type + "] " + q.text;
+        if (q.options) ctx += " (options: " + q.options.join(", ") + ")";
+        ctx += "\n";
+    });
+    if (!responses || responses.length === 0) {
+        ctx += "\nNo responses collected yet. Analyse based on survey design only.";
+    } else {
+        ctx += "\nRESPONSES (" + responses.length + " total):\n";
+        responses.forEach((r, ri) => {
+            ctx += "\nRespondent " + (ri + 1) + ":\n";
+            questions.forEach((q, qi) => {
+                const ans = r.answers && r.answers[q.id];
+                if (ans !== undefined && ans !== "") {
+                    ctx += "  Q" + (qi + 1) + " (" + q.text + "): " + (Array.isArray(ans) ? ans.join(", ") : ans) + "\n";
+                }
+            });
+        });
+    }
+    return ctx;
+}
+
+app.post('/api/analyse', async (req, res) => {
+    console.log("-> /api/analyse called");
+    const { surveyId, messages, surveyContext } = req.body;
+
+    // MODE 1: Chat (Ask Asha in responses tab)
+    if (messages && Array.isArray(messages)) {
+        try {
+            const systemContent = surveyContext
+                ? ANALYSE_CHAT_SYSTEM + "\n\nSURVEY CONTEXT:\n" + surveyContext
+                : ANALYSE_CHAT_SYSTEM;
+            const chatData = await groq(
+                "llama-3.1-8b-instant",
+                [{ role: "system", content: systemContent }, ...messages],
+                { temperature: 0.6, max_tokens: 800 }
+            );
+            if (chatData.error) {
+                const errMsg = chatData.error.message || "";
+                if (chatData.error.code === "rate_limit_exceeded" || errMsg.includes("rate limit")) {
+                    return res.json({ error_type: "rate_limit", wait_time: parseWaitTime(errMsg) });
+                }
+                return res.json({ reply: "I could not analyse the data right now. Please try again." });
+            }
+            const reply = stripThink(chatData.choices && chatData.choices[0] && chatData.choices[0].message && chatData.choices[0].message.content) || "I could not analyse the data right now.";
+            return res.json({ reply });
+        } catch (err) {
+            console.error("[ANALYSE CHAT ERROR]", err);
+            return res.status(500).json({ reply: "Something went wrong. Please try again." });
+        }
+    }
+
+    // MODE 2: Beachhead Analysis (AnalysisReport page)
+    if (!surveyId) return res.status(400).json({ error: "surveyId is required" });
+
+    console.log("  Running Beachhead analysis for survey:", surveyId);
+    try {
+        const { data: surveyArr, error: surveyError } = await supabaseFetch(
+            "surveys?select=id,title,description,questions&id=eq." + surveyId + "&limit=1"
+        );
+        const survey = Array.isArray(surveyArr) ? surveyArr[0] : null;
+        if (surveyError || !survey) return res.status(404).json({ error: "Survey not found." });
+
+        const { data: responses } = await supabaseFetch(
+            "survey_responses?select=id,answers,created_at&survey_id=eq." + surveyId + "&order=created_at.asc"
+        );
+
+        const responseList = responses || [];
+        const context = buildAnalyseContext(survey, responseList);
+
+        console.log("  Calling Groq for Beachhead analysis...");
+        const analysisData = await groq(
+            "meta-llama/llama-4-scout-17b-16e-instruct",
+            [
+                { role: "system", content: BEACHHEAD_SYSTEM },
+                { role: "user", content: context }
+            ],
+            {
+                temperature: 0.3,
+                max_tokens: 3000,
+                response_format: {
+                    type: "json_schema",
+                    json_schema: { name: "beachhead_analysis", schema: ANALYSIS_SCHEMA }
+                }
+            }
+        );
+
+        if (analysisData.error) {
+            const errMsg = analysisData.error.message || "";
+            console.error("  Groq error:", errMsg);
+            if (analysisData.error.code === "rate_limit_exceeded" || errMsg.includes("rate limit")) {
+                return res.json({ error_type: "rate_limit", wait_time: parseWaitTime(errMsg) });
+            }
+            return res.json({ error: "Analysis failed. Please try again." });
+        }
+
+        const content = analysisData.choices && analysisData.choices[0] && analysisData.choices[0].message && analysisData.choices[0].message.content;
+        if (!content) return res.json({ error: "Empty response from model. Please try again." });
+
+        let parsed;
+        try { parsed = JSON.parse(content); }
+        catch (e) { return res.json({ error: "Invalid analysis format. Please try again." }); }
+
+        await supabaseFetch("surveys?id=eq." + surveyId, {
+            method: "PATCH",
+            prefer: "return=minimal",
+            body: { analysis: parsed, analysis_status: "done" }
+        });
+
+        console.log("  Beachhead analysis done. Verdict:", parsed.final_recommendation && parsed.final_recommendation.verdict);
+        return res.json({ analysis: parsed, responseCount: responseList.length });
+
+    } catch (err) {
+        console.error("[ANALYSE ERROR]", err);
+        return res.status(500).json({ error: err.message || "Something went wrong" });
+    }
+});
+
 app.listen(3000, () => {
     console.log('✅ API server running at http://localhost:3000')
     console.log('  POST /api/chat')
     console.log('  POST /api/survey-draft')
+    console.log('  POST /api/analyse')
 })
